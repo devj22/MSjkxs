@@ -1,18 +1,32 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
-import { Menu, X } from "lucide-react";
+import { Menu, X, Home, Building, Newspaper } from "lucide-react";
 
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isHomePage, setIsHomePage] = useState(true);
+  const [location] = useLocation();
+
+  // Check if we're on the home page
+  useEffect(() => {
+    setIsHomePage(location === '/');
+  }, [location]);
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
   };
 
   const scrollToSection = (id: string) => {
-    const element = document.getElementById(id);
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth' });
+    // Only try to scroll if on home page
+    if (isHomePage) {
+      const element = document.getElementById(id);
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth' });
+      }
+    } else {
+      // Navigate to home page with hash
+      window.location.href = `/#${id}`;
     }
     setIsMenuOpen(false);
   };
@@ -23,33 +37,45 @@ export default function Navbar() {
         <nav className="flex items-center justify-between py-4">
           {/* Logo */}
           <div className="flex items-center">
-            <a href="#" className="flex items-center" onClick={(e) => { e.preventDefault(); scrollToSection('home'); }}>
+            <Link href="/" className="flex items-center">
               <span className="text-primary text-2xl font-display font-bold">Naina<span className="text-red-600">Land</span></span>
-            </a>
+            </Link>
           </div>
           
           {/* Desktop Menu */}
-          <div className="hidden md:flex items-center space-x-8">
-            <a 
-              href="#home" 
-              className="text-primary hover:text-red-600 font-medium transition-colors duration-300"
-              onClick={(e) => { e.preventDefault(); scrollToSection('home'); }}
+          <div className="hidden md:flex items-center space-x-6">
+            <Link href="/" 
+              className="flex items-center gap-1 text-primary hover:text-red-600 font-medium transition-colors duration-300"
             >
+              <Home className="h-4 w-4" />
               Home
-            </a>
-            <a 
-              href="#about" 
-              className="text-primary hover:text-red-600 font-medium transition-colors duration-300"
-              onClick={(e) => { e.preventDefault(); scrollToSection('about'); }}
+            </Link>
+            <Link href="/properties" 
+              className="flex items-center gap-1 text-primary hover:text-red-600 font-medium transition-colors duration-300"
             >
-              About Us
-            </a>
-            <Button 
-              className="bg-red-600 hover:bg-primary text-white px-4 py-2 rounded transition-colors duration-300"
-              onClick={() => scrollToSection('contact')}
+              <Building className="h-4 w-4" />
+              Properties
+            </Link>
+            <Link href="/blog" 
+              className="flex items-center gap-1 text-primary hover:text-red-600 font-medium transition-colors duration-300"
             >
-              Contact Us
-            </Button>
+              <Newspaper className="h-4 w-4" />
+              Blog
+            </Link>
+            {isHomePage ? (
+              <Button 
+                className="bg-red-600 hover:bg-primary text-white px-4 py-2 rounded transition-colors duration-300"
+                onClick={() => scrollToSection('contact')}
+              >
+                Contact Us
+              </Button>
+            ) : (
+              <Link href="/#contact">
+                <Button className="bg-red-600 hover:bg-primary text-white px-4 py-2 rounded transition-colors duration-300">
+                  Contact Us
+                </Button>
+              </Link>
+            )}
           </div>
           
           {/* Mobile Menu Button */}
@@ -67,27 +93,43 @@ export default function Navbar() {
         
         {/* Mobile Menu */}
         {isMenuOpen && (
-          <div className="md:hidden pb-4">
-            <a 
-              href="#home" 
-              className="block py-2 text-primary hover:text-red-600 font-medium"
-              onClick={(e) => { e.preventDefault(); scrollToSection('home'); }}
+          <div className="md:hidden pb-4 space-y-2">
+            <Link href="/" 
+              className="flex items-center gap-2 py-2 text-primary hover:text-red-600 font-medium"
+              onClick={() => setIsMenuOpen(false)}
             >
+              <Home className="h-4 w-4" />
               Home
-            </a>
-            <a 
-              href="#about" 
-              className="block py-2 text-primary hover:text-red-600 font-medium"
-              onClick={(e) => { e.preventDefault(); scrollToSection('about'); }}
+            </Link>
+            <Link href="/properties" 
+              className="flex items-center gap-2 py-2 text-primary hover:text-red-600 font-medium"
+              onClick={() => setIsMenuOpen(false)}
             >
-              About Us
-            </a>
-            <Button 
-              className="block w-full bg-red-600 text-white px-4 py-2 rounded mt-2 text-center"
-              onClick={() => scrollToSection('contact')}
+              <Building className="h-4 w-4" />
+              Properties
+            </Link>
+            <Link href="/blog" 
+              className="flex items-center gap-2 py-2 text-primary hover:text-red-600 font-medium"
+              onClick={() => setIsMenuOpen(false)}
             >
-              Contact Us
-            </Button>
+              <Newspaper className="h-4 w-4" />
+              Blog
+            </Link>
+            {isHomePage ? (
+              <Button 
+                className="block w-full bg-red-600 text-white px-4 py-2 rounded mt-2 text-center"
+                onClick={() => scrollToSection('contact')}
+              >
+                Contact Us
+              </Button>
+            ) : (
+              <Link href="/#contact" className="block w-full">
+                <Button className="w-full bg-red-600 text-white px-4 py-2 rounded mt-2 text-center"
+                  onClick={() => setIsMenuOpen(false)}>
+                  Contact Us
+                </Button>
+              </Link>
+            )}
           </div>
         )}
       </div>
