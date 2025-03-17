@@ -1,4 +1,4 @@
-import { pgTable, text, serial, integer, boolean } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, boolean, doublePrecision } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -30,8 +30,74 @@ export const insertContactSchema = createInsertSchema(contactSubmissions).pick({
   message: true,
 });
 
+// Property listing schema
+export const propertyListings = pgTable("property_listings", {
+  id: serial("id").primaryKey(),
+  title: text("title").notNull(),
+  description: text("description").notNull(),
+  price: integer("price").notNull(),
+  location: text("location").notNull(),
+  address: text("address").notNull(),
+  bedrooms: integer("bedrooms").notNull(),
+  bathrooms: integer("bathrooms").notNull(),
+  area: integer("area").notNull(), // in square feet
+  propertyType: text("property_type").notNull(), // apartment, house, villa, etc.
+  forSale: boolean("for_sale").notNull().default(true), // true for sale, false for rent
+  featured: boolean("featured").notNull().default(false),
+  latitude: doublePrecision("latitude").notNull(),
+  longitude: doublePrecision("longitude").notNull(),
+  imageUrls: text("image_urls").array().notNull(),
+  createdAt: text("created_at").notNull().default(new Date().toISOString()),
+});
+
+export const insertPropertySchema = createInsertSchema(propertyListings).pick({
+  title: true,
+  description: true,
+  price: true,
+  location: true,
+  address: true,
+  bedrooms: true,
+  bathrooms: true,
+  area: true,
+  propertyType: true,
+  forSale: true,
+  featured: true,
+  latitude: true,
+  longitude: true,
+  imageUrls: true,
+});
+
+// Blog/News post schema
+export const blogPosts = pgTable("blog_posts", {
+  id: serial("id").primaryKey(),
+  title: text("title").notNull(),
+  slug: text("slug").notNull().unique(),
+  content: text("content").notNull(),
+  summary: text("summary").notNull(),
+  author: text("author").notNull(),
+  category: text("category").notNull(),
+  imageUrl: text("image_url").notNull(),
+  createdAt: text("created_at").notNull().default(new Date().toISOString()),
+});
+
+export const insertBlogPostSchema = createInsertSchema(blogPosts).pick({
+  title: true,
+  slug: true,
+  content: true,
+  summary: true,
+  author: true,
+  category: true,
+  imageUrl: true,
+});
+
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;
 
 export type InsertContact = z.infer<typeof insertContactSchema>;
 export type ContactSubmission = typeof contactSubmissions.$inferSelect;
+
+export type InsertProperty = z.infer<typeof insertPropertySchema>;
+export type Property = typeof propertyListings.$inferSelect;
+
+export type InsertBlogPost = z.infer<typeof insertBlogPostSchema>;
+export type BlogPost = typeof blogPosts.$inferSelect;
