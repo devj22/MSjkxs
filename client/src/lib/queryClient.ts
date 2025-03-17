@@ -7,20 +7,49 @@ async function throwIfResNotOk(res: Response) {
   }
 }
 
-export async function apiRequest(
-  method: string,
-  url: string,
-  data?: unknown | undefined,
-): Promise<Response> {
+export async function apiRequest<T = any>(
+  urlOrOptions: string | RequestInit,
+  options?: RequestInit,
+): Promise<T> {
+  let url: string;
+  let fetchOptions: RequestInit;
+
+  if (typeof urlOrOptions === 'string') {
+    url = urlOrOptions;
+    fetchOptions = options || {};
+  } else {
+    // This case is never used in our app, but kept for backward compatibility
+    url = '';
+    fetchOptions = urlOrOptions;
+  }
+
   const res = await fetch(url, {
-    method,
-    headers: data ? { "Content-Type": "application/json" } : {},
-    body: data ? JSON.stringify(data) : undefined,
+    ...fetchOptions,
+    headers: {
+      ...fetchOptions.headers,
+    },
     credentials: "include",
   });
 
-  await throwIfResNotOk(res);
-  return res;
+  if (!res.ok) {
+    if (res.status === 401) {
+      const error: any = new Error("Unauthorized");
+      error.status = 401;
+      throw error;
+    }
+    const text = await res.text();
+    const error: any = new Error(text || res.statusText);
+    error.status = res.status;
+    throw error;
+  }
+
+  // Check if the response has content
+  const contentType = res.headers.get('content-type');
+  if (contentType && contentType.includes('application/json')) {
+    return await res.json() as T;
+  }
+  
+  return {} as T;
 }
 
 type UnauthorizedBehavior = "returnNull" | "throw";

@@ -8,6 +8,7 @@ import {
 import { useLocation } from "wouter";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
 
 interface AuthStatusResponse {
   success: boolean;
@@ -26,8 +27,6 @@ interface LoginResponse {
     username: string;
   };
 }
-
-import { useToast } from "@/hooks/use-toast";
 
 type User = {
   id: number;
@@ -53,11 +52,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const {
     data: authData,
     isLoading,
-  } = useQuery({
+  } = useQuery<AuthStatusResponse>({
     queryKey: ["auth", "status"],
     queryFn: async () => {
       try {
-        return await apiRequest("/api/auth/status");
+        return await apiRequest<AuthStatusResponse>("/api/auth/status");
       } catch (error) {
         return { success: true, authenticated: false };
       }
@@ -68,10 +67,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const user = authData?.user || null;
 
   // Login mutation
-  const loginMutation = useMutation({
-    mutationFn: async (credentials: { username: string; password: string }) => {
+  const loginMutation = useMutation<
+    LoginResponse, 
+    Error, 
+    { username: string; password: string }
+  >({
+    mutationFn: async (credentials) => {
       try {
-        return await apiRequest("/api/auth/login", {
+        return await apiRequest<LoginResponse>("/api/auth/login", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -88,7 +91,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   });
 
   // Logout mutation
-  const logoutMutation = useMutation({
+  const logoutMutation = useMutation<{success: boolean; message?: string}, Error>({
     mutationFn: async () => {
       return await apiRequest("/api/auth/logout", {
         method: "POST",

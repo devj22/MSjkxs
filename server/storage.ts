@@ -65,6 +65,13 @@ export class MemStorage implements IStorage {
 
   // Sample data initialization
   private initSampleData() {
+    // Create an admin user
+    this.createUser({
+      username: "admin",
+      password: "admin123",
+      email: "admin@nainaland.com"
+    });
+    
     // Sample properties
     const sampleProperties: InsertProperty[] = [
       {
