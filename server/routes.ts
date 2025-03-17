@@ -1,4 +1,4 @@
-import type { Express } from "express";
+import type { Express, Request, Response, NextFunction } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { 
@@ -8,8 +8,136 @@ import {
 } from "@shared/schema";
 import { ZodError, z } from "zod";
 import { fromZodError } from "zod-validation-error";
+import passport from "passport";
+import { Strategy as LocalStrategy } from "passport-local";
+import session from "express-session";
+import MemoryStore from "memorystore";
+
+// Create an authenticated middleware to protect admin routes
+const isAuthenticated = (req: Request, res: Response, next: NextFunction) => {
+  if (req.isAuthenticated()) {
+    return next();
+  }
+  
+  res.status(401).json({
+    success: false,
+    message: "Unauthorized access. Please login first."
+  });
+};
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Setup session store
+  const MemorySessionStore = MemoryStore(session);
+  
+  // Configure session middleware
+  app.use(session({
+    secret: process.env.SESSION_SECRET || 'nainaland-session-secret',
+    resave: false,
+    saveUninitialized: false,
+    cookie: { 
+      secure: process.env.NODE_ENV === 'production',
+      maxAge: 24 * 60 * 60 * 1000 // 1 day
+    },
+    store: new MemorySessionStore({
+      checkPeriod: 86400000 // prune expired entries every 24h
+    })
+  }));
+  
+  // Initialize passport
+  app.use(passport.initialize());
+  app.use(passport.session());
+  
+  // Configure passport to use local strategy
+  passport.use(new LocalStrategy(
+    async (username, password, done) => {
+      try {
+        const user = await storage.getUserByUsername(username);
+        
+        if (!user) {
+          return done(null, false, { message: 'Incorrect username.' });
+        }
+        
+        // In a real application, you would use bcrypt to compare hashed passwords
+        // This is simplified for the demo
+        if (password !== user.password) {
+          return done(null, false, { message: 'Incorrect password.' });
+        }
+        
+        return done(null, user);
+      } catch (error) {
+        return done(error);
+      }
+    }
+  ));
+  
+  // Serialize user to the session
+  passport.serializeUser((user: any, done) => {
+    done(null, user.id);
+  });
+  
+  // Deserialize user from the session
+  passport.deserializeUser(async (id: number, done) => {
+    try {
+      const user = await storage.getUser(id);
+      done(null, user);
+    } catch (error) {
+      done(error);
+    }
+  });
+  
+  // Authentication routes
+  app.post('/api/auth/login', 
+    passport.authenticate('local'),
+    (req, res) => {
+      // Authentication succeeded, return user info
+      res.json({
+        success: true,
+        message: 'Authentication successful',
+        user: {
+          id: (req.user as any).id,
+          username: (req.user as any).username,
+          // Don't include password in response
+        }
+      });
+    }
+  );
+  
+  app.get('/api/auth/status', (req, res) => {
+    if (req.isAuthenticated()) {
+      res.json({
+        success: true,
+        authenticated: true,
+        user: {
+          id: (req.user as any).id,
+          username: (req.user as any).username,
+          // Don't include password in response
+        }
+      });
+    } else {
+      res.json({
+        success: true,
+        authenticated: false
+      });
+    }
+  });
+  
+  app.post('/api/auth/logout', (req, res) => {
+    req.logout((err) => {
+      if (err) {
+        return res.status(500).json({
+          success: false,
+          message: 'Error logging out',
+          error: err.message
+        });
+      }
+      
+      res.json({
+        success: true,
+        message: 'Logged out successfully'
+      });
+    });
+  });
+  
   // API endpoint for contact form submissions
   app.post("/api/contact", async (req, res) => {
     try {
@@ -140,8 +268,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Create a new property
-  app.post("/api/properties", async (req, res) => {
+  // Create a new property (protected route)
+  app.post("/api/properties", isAuthenticated, async (req, res) => {
     try {
       const propertyData = insertPropertySchema.parse(req.body);
       const property = await storage.createProperty(propertyData);

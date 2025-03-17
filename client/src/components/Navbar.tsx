@@ -76,6 +76,12 @@ export default function Navbar() {
                 </Button>
               </Link>
             )}
+            <Link href="/admin/login" 
+              className="flex items-center gap-1 text-gray-500 hover:text-primary font-medium transition-colors duration-300 ml-4"
+            >
+              <Lock className="h-4 w-4" />
+              Admin
+            </Link>
           </div>
           
           {/* Mobile Menu Button */}
@@ -130,6 +136,16 @@ export default function Navbar() {
                 </Button>
               </Link>
             )}
+            
+            <div className="pt-2 mt-2 border-t border-gray-200">
+              <Link href="/admin/login" 
+                className="flex items-center gap-2 py-2 text-gray-500 hover:text-primary font-medium"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                <Lock className="h-4 w-4" />
+                Admin Login
+              </Link>
+            </div>
           </div>
         )}
       </div>
