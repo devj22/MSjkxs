@@ -26,7 +26,7 @@ export default function BlogPostDetails() {
     data: postData,
     isLoading,
     error 
-  } = useQuery({
+  } = useQuery<{ success: boolean; data: BlogPost }>({
     queryKey: ['/api/blog', params?.slug],
     enabled: !!params?.slug,
     staleTime: 1000 * 60 * 5, // 5 minutes

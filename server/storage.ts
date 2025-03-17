@@ -430,7 +430,14 @@ By implementing these staging strategies, you can significantly increase your pr
   async createProperty(insertProperty: InsertProperty): Promise<Property> {
     const id = this.propertyCurrentId++;
     const createdAt = new Date().toISOString();
-    const property: Property = { ...insertProperty, id, createdAt };
+    // Ensure forSale and featured are set with default values if not provided
+    const property: Property = { 
+      ...insertProperty, 
+      id, 
+      createdAt, 
+      forSale: insertProperty.forSale ?? true,
+      featured: insertProperty.featured ?? false
+    };
     this.properties.set(id, property);
     return property;
   }
@@ -445,12 +452,9 @@ By implementing these staging strategies, you can significantly increase your pr
   }
 
   async getBlogPostBySlug(slug: string): Promise<BlogPost | undefined> {
-    for (const post of this.blogPosts.values()) {
-      if (post.slug === slug) {
-        return post;
-      }
-    }
-    return undefined;
+    // Convert to array first to avoid iterator issues
+    const posts = Array.from(this.blogPosts.values());
+    return posts.find(post => post.slug === slug);
   }
 
   async getRecentBlogPosts(limit: number = 3): Promise<BlogPost[]> {
@@ -465,7 +469,12 @@ By implementing these staging strategies, you can significantly increase your pr
   async createBlogPost(insertPost: InsertBlogPost): Promise<BlogPost> {
     const id = this.blogPostCurrentId++;
     const createdAt = new Date().toISOString();
-    const blogPost: BlogPost = { ...insertPost, id, createdAt };
+    // Create blog post with correct typing
+    const blogPost: BlogPost = { 
+      ...insertPost, 
+      id, 
+      createdAt 
+    };
     this.blogPosts.set(id, blogPost);
     return blogPost;
   }

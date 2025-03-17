@@ -25,7 +25,7 @@ export default function Blog() {
     data: blogData,
     isLoading,
     error 
-  } = useQuery({
+  } = useQuery<{ success: boolean; data: BlogPost[] }>({
     queryKey: ['/api/blog'],
     staleTime: 1000 * 60 * 5, // 5 minutes
   });
