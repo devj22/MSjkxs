@@ -379,8 +379,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Create a new blog post
-  app.post("/api/blog", async (req, res) => {
+  // Create a new blog post (protected route)
+  app.post("/api/blog", isAuthenticated, async (req, res) => {
     try {
       const blogData = insertBlogPostSchema.parse(req.body);
       const post = await storage.createBlogPost(blogData);

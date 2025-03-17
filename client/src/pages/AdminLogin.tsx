@@ -1,62 +1,31 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useLocation } from "wouter";
-import { useMutation } from "@tanstack/react-query";
-import { apiRequest } from "@/lib/queryClient"; 
 import { COMPANY_INFO } from "@/lib/constants";
 import { ArrowRight, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/use-auth";
 
 export default function AdminLogin() {
   const [, navigate] = useLocation();
   const { toast } = useToast();
+  const { login, isAuthenticated, isLoading } = useAuth();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [isPending, setIsPending] = useState(false);
   
-  // In a real application, this would make an API call to authenticate
-  // For demo purposes, we'll just check hardcoded credentials
-  const loginMutation = useMutation({
-    mutationFn: async (credentials: { username: string; password: string }) => {
-      // For demo, we simulate an API call with a timeout
-      return new Promise<{ success: boolean; message?: string }>((resolve) => {
-        setTimeout(() => {
-          // Simple credential check (for demo only)
-          if (credentials.username === "admin" && credentials.password === "password") {
-            resolve({ success: true });
-          } else {
-            resolve({ success: false, message: "Invalid username or password" });
-          }
-        }, 1000);
-      });
-    },
-    onSuccess: (data) => {
-      if (data.success) {
-        toast({
-          title: "Login Successful",
-          description: "Welcome back to the admin dashboard.",
-        });
-        navigate("/admin");
-      } else {
-        toast({
-          title: "Login Failed",
-          description: data.message || "Invalid credentials. Please try again.",
-          variant: "destructive",
-        });
-      }
-    },
-    onError: () => {
-      toast({
-        title: "Login Error",
-        description: "An error occurred. Please try again later.",
-        variant: "destructive",
-      });
-    },
-  });
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate("/admin");
+    }
+  }, [isAuthenticated, navigate]);
   
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
     if (!username || !password) {
       toast({
         title: "Error",
@@ -65,7 +34,17 @@ export default function AdminLogin() {
       });
       return;
     }
-    loginMutation.mutate({ username, password });
+    
+    setIsPending(true);
+    
+    try {
+      const success = await login(username, password);
+      if (success) {
+        navigate("/admin");
+      }
+    } finally {
+      setIsPending(false);
+    }
   };
 
   return (
@@ -111,14 +90,14 @@ export default function AdminLogin() {
             <Button
               type="submit"
               className="w-full bg-primary hover:bg-primary/90"
-              disabled={loginMutation.isPending}
+              disabled={isPending || isLoading}
             >
-              {loginMutation.isPending ? (
+              {isPending ? (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               ) : (
                 <ArrowRight className="mr-2 h-4 w-4" />
               )}
-              {loginMutation.isPending ? "Signing in..." : "Sign In"}
+              {isPending ? "Signing in..." : "Sign In"}
             </Button>
             
             <div className="text-center text-sm text-gray-500 mt-4">
