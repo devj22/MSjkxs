@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import PropertyCard from "@/components/PropertyCard";
+import PropertyCard from "../components/PropertyCard";
 import { Property } from "@shared/schema";
 import { 
   Loader2, 
@@ -50,7 +50,7 @@ export default function Properties() {
     data: propertiesData,
     isLoading,
     error 
-  } = useQuery({
+  } = useQuery<{ success: boolean; data: Property[] }>({
     queryKey: ['/api/properties'],
     staleTime: 1000 * 60 * 5, // 5 minutes
   });
