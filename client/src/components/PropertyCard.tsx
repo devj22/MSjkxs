@@ -64,7 +64,12 @@ export default function PropertyCard({ property, carouselStyle = false }: Proper
           </div>
           <div className="flex items-center text-gray-700">
             <Ruler className="h-4 w-4 mr-1 text-primary" />
-            <span>{property.area.toLocaleString()} sqft</span>
+            <span>
+              {property.area.toLocaleString()} 
+              {property.areaUnit === 'sqft' && ' sq.ft'}
+              {property.areaUnit === 'gunta' && ' gunta'}
+              {property.areaUnit === 'acre' && ' acres'}
+            </span>
           </div>
         </div>
         

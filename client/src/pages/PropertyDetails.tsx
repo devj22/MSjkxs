@@ -196,7 +196,11 @@ export default function PropertyDetails() {
                   <div className="flex flex-col items-center justify-center bg-gray-50 rounded-lg p-4">
                     <Ruler className="h-8 w-8 text-primary mb-2" />
                     <span className="text-2xl font-bold">{property.area.toLocaleString()}</span>
-                    <span className="text-gray-600 text-sm">Square Feet</span>
+                    <span className="text-gray-600 text-sm">
+                      {property.areaUnit === 'sqft' && 'Square Feet'}
+                      {property.areaUnit === 'gunta' && 'Gunta'}
+                      {property.areaUnit === 'acre' && 'Acres'}
+                    </span>
                   </div>
                   <div className="flex flex-col items-center justify-center bg-gray-50 rounded-lg p-4">
                     <Home className="h-8 w-8 text-primary mb-2" />
@@ -212,10 +216,11 @@ export default function PropertyDetails() {
               {/* Tabs for Additional Information */}
               <div className="bg-white rounded-lg shadow-sm">
                 <Tabs defaultValue="address">
-                  <TabsList className="w-full grid grid-cols-3">
+                  <TabsList className="w-full grid grid-cols-4">
                     <TabsTrigger value="address">Address</TabsTrigger>
                     <TabsTrigger value="map" onClick={handleMapTabSelect}>Map</TabsTrigger>
                     <TabsTrigger value="features">Features</TabsTrigger>
+                    {property.youtubeUrl && <TabsTrigger value="video">Video</TabsTrigger>}
                   </TabsList>
                   <TabsContent value="address" className="p-6">
                     <h3 className="text-xl font-bold mb-4">Property Address</h3>
@@ -296,6 +301,26 @@ export default function PropertyDetails() {
                       </div>
                     </div>
                   </TabsContent>
+                  {property.youtubeUrl && (
+                    <TabsContent value="video" className="p-6">
+                      <h3 className="text-xl font-bold mb-4">Property Video Tour</h3>
+                      <div className="aspect-video w-full overflow-hidden rounded-lg">
+                        <iframe
+                          width="100%"
+                          height="100%"
+                          src={property.youtubeUrl.includes('youtube.com/watch?v=') 
+                            ? property.youtubeUrl.replace('watch?v=', 'embed/') 
+                            : property.youtubeUrl.includes('youtu.be/')
+                              ? property.youtubeUrl.replace('youtu.be/', 'youtube.com/embed/') 
+                              : property.youtubeUrl}
+                          title="Property Video"
+                          frameBorder="0"
+                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                          allowFullScreen
+                        ></iframe>
+                      </div>
+                    </TabsContent>
+                  )}
                 </Tabs>
               </div>
             </div>

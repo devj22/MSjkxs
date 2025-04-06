@@ -75,94 +75,108 @@ export class MemStorage implements IStorage {
     // Sample properties
     const sampleProperties: InsertProperty[] = [
       {
-        title: "Luxury Villa in Highland Park",
-        description: "Beautiful luxury villa with amazing views and premium finishes. This villa features a spacious open floor plan, gourmet kitchen, and a backyard paradise.",
-        price: 1250000,
+        title: "Premium Land Plot in Highland Park",
+        description: "Beautiful premium land plot with amazing views. Perfect for building your dream home with ample space for landscaping and outdoor living.",
+        price: 950000,
         location: "Highland Park",
         address: "123 Luxury Lane, Highland Park, TX 75205",
-        bedrooms: 5,
-        bathrooms: 4,
-        area: 4200,
-        propertyType: "Villa",
+        bedrooms: 0,
+        bathrooms: 0,
+        area: 10000,
+        areaUnit: "sqft",
+        propertyType: "Land",
         forSale: true,
         featured: true,
         latitude: 32.8310,
         longitude: -96.8005,
+        youtubeUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
         imageUrls: [
-          "https://images.unsplash.com/photo-1564013799919-ab600027ffc6?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80",
-          "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80"
+          "https://images.unsplash.com/photo-1500382017468-9049fed747ef?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80",
+          "https://images.unsplash.com/photo-1542856391-010fb87dcfed?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80"
         ]
       },
       {
-        title: "Downtown Modern Apartment",
-        description: "Sleek, modern apartment in the heart of downtown. Walking distance to restaurants, shops, and entertainment.",
-        price: 450000,
+        title: "Downtown Development Opportunity",
+        description: "Rare development opportunity in the heart of downtown. Excellent potential for commercial or mixed-use project with high visibility.",
+        price: 1250000,
         location: "Downtown",
         address: "456 Urban Ave, Dallas, TX 75201",
-        bedrooms: 2,
-        bathrooms: 2,
-        area: 1200,
-        propertyType: "Apartment",
+        bedrooms: 0,
+        bathrooms: 0,
+        area: 5,
+        areaUnit: "acre",
+        propertyType: "Land",
         forSale: true,
         featured: true,
         latitude: 32.7767,
         longitude: -96.7970,
+        youtubeUrl: "https://www.youtube.com/watch?v=jfKfPfyJRdk",
         imageUrls: [
-          "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80"
+          "https://images.unsplash.com/photo-1486325212027-8081e485255e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80",
+          "https://images.unsplash.com/photo-1572607275662-90cbab2a1705?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8bGFuZCUyMHBsb3R8ZW58MHx8MHx8fDA%3D&auto=format&fit=crop&w=500&q=60"
         ]
       },
       {
-        title: "Suburban Family Home",
-        description: "Perfect family home in a quiet suburban neighborhood with excellent schools and parks nearby.",
-        price: 650000,
+        title: "Suburban Residential Plot",
+        description: "Perfect land plot in a quiet suburban neighborhood with excellent schools and parks nearby. Ready to build your family dream home.",
+        price: 350000,
         location: "Plano",
         address: "789 Family Circle, Plano, TX 75024",
-        bedrooms: 4,
-        bathrooms: 3,
-        area: 2800,
-        propertyType: "House",
+        bedrooms: 0,
+        bathrooms: 0,
+        area: 40,
+        areaUnit: "gunta",
+        propertyType: "Land",
         forSale: true,
         featured: false,
         latitude: 33.0198,
         longitude: -96.6989,
+        youtubeUrl: "",
         imageUrls: [
-          "https://images.unsplash.com/photo-1568605114967-8130f3a36994?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80"
+          "https://images.unsplash.com/photo-1500076656116-558758c991c1?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1471&q=80",
+          "https://images.unsplash.com/photo-1628624747186-a941c476b7ef?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80"
         ]
       },
       {
-        title: "Lakefront Property",
-        description: "Stunning lakefront property with private dock and panoramic water views. Perfect for water enthusiasts.",
-        price: 890000,
+        title: "Lakefront Land with Spectacular Views",
+        description: "Stunning lakefront land with panoramic water views. Perfect for building your dream lakeside retreat with private dock access.",
+        price: 790000,
         location: "Lake Ray Hubbard",
         address: "101 Shoreline Dr, Rockwall, TX 75087",
-        bedrooms: 3,
-        bathrooms: 2,
-        area: 2100,
-        propertyType: "House",
+        bedrooms: 0,
+        bathrooms: 0,
+        area: 3,
+        areaUnit: "acre",
+        propertyType: "Land",
         forSale: true,
         featured: true,
         latitude: 32.8650,
         longitude: -96.4369,
+        youtubeUrl: "https://www.youtube.com/watch?v=kcWOlE5VlHQ",
         imageUrls: [
-          "https://images.unsplash.com/photo-1580587771525-78b9dba3b914?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1374&q=80"
+          "https://images.unsplash.com/photo-1511497584788-876760111969?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1632&q=80",
+          "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1374&q=80"
         ]
       },
       {
-        title: "Luxury Penthouse Apartment",
-        description: "Exclusive penthouse with rooftop terrace offering 360-degree city views. Premium finishes throughout.",
+        title: "Premium Hill Country Land",
+        description: "Exclusive land opportunity with scenic hill country views. Premium location for an upscale custom home development.",
         price: 1800000,
         location: "Uptown",
         address: "555 Sky High Blvd, Dallas, TX 75204",
-        bedrooms: 3,
-        bathrooms: 3,
-        area: 2800,
-        propertyType: "Penthouse",
+        bedrooms: 0,
+        bathrooms: 0,
+        area: 100000,
+        areaUnit: "sqft",
+        propertyType: "Land",
         forSale: true,
         featured: true,
         latitude: 32.7954,
         longitude: -96.8021,
+        youtubeUrl: "https://www.youtube.com/watch?v=QH2-TGUlwu4",
         imageUrls: [
-          "https://images.unsplash.com/photo-1493809842364-78817add7ffb?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80"
+          "https://images.unsplash.com/photo-1621929747188-0b4dc28498d2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1472&q=80",
+          "https://images.unsplash.com/photo-1594750823491-e493d067ce3e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1477&q=80"
         ]
       }
     ];
@@ -437,13 +451,15 @@ By implementing these staging strategies, you can significantly increase your pr
   async createProperty(insertProperty: InsertProperty): Promise<Property> {
     const id = this.propertyCurrentId++;
     const createdAt = new Date().toISOString();
-    // Ensure forSale and featured are set with default values if not provided
+    // Ensure default values are set if not provided
     const property: Property = { 
       ...insertProperty, 
       id, 
-      createdAt, 
+      createdAt,
+      areaUnit: insertProperty.areaUnit || 'sqft',
       forSale: insertProperty.forSale ?? true,
-      featured: insertProperty.featured ?? false
+      featured: insertProperty.featured ?? false,
+      youtubeUrl: insertProperty.youtubeUrl || ''
     };
     this.properties.set(id, property);
     return property;
