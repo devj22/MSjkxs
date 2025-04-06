@@ -40,8 +40,12 @@ export default function AdminAddBlogPost() {
   // Create blog post mutation
   const createBlogPostMutation = useMutation({
     mutationFn: async (blogData: InsertBlogPost) => {
+      console.log("Sending blog data:", JSON.stringify(blogData, null, 2));
       return apiRequest<{ success: boolean; data: any }>("/api/blog", {
         method: "POST",
+        headers: {
+          'Content-Type': 'application/json'
+        },
         body: JSON.stringify(blogData),
       });
     },
@@ -136,14 +140,15 @@ export default function AdminAddBlogPost() {
       return;
     }
     
+    // Ensure all fields are strings
     const blogData: InsertBlogPost = {
-      title,
-      slug,
-      summary,
-      content,
-      author,
-      category,
-      imageUrl,
+      title: String(title),
+      slug: String(slug),
+      summary: String(summary),
+      content: String(content),
+      author: String(author),
+      category: String(category),
+      imageUrl: String(imageUrl),
     };
     
     console.log("Submitting blog data:", blogData);

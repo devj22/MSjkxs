@@ -23,11 +23,24 @@ export async function apiRequest<T = any>(
     fetchOptions = urlOrOptions;
   }
 
+  // Ensure content-type is set for JSON requests if the body is a string that can be parsed as JSON
+  let headers = { ...fetchOptions.headers };
+  if (
+    typeof fetchOptions.body === 'string' && 
+    !headers['Content-Type'] && 
+    !headers['content-type']
+  ) {
+    try {
+      JSON.parse(fetchOptions.body);
+      headers['Content-Type'] = 'application/json';
+    } catch (e) {
+      // Not JSON, don't set content-type
+    }
+  }
+
   const res = await fetch(url, {
     ...fetchOptions,
-    headers: {
-      ...fetchOptions.headers,
-    },
+    headers,
     credentials: "include",
   });
 
