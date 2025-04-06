@@ -32,12 +32,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Configure session middleware
   app.use(session({
     secret: process.env.SESSION_SECRET || 'nainaland-session-secret',
-    resave: false,
-    saveUninitialized: false,
+    resave: true,
+    saveUninitialized: true,
     cookie: { 
       secure: false, // Set to false for development
       httpOnly: true,
-      maxAge: 24 * 60 * 60 * 1000 // 1 day
+      maxAge: 24 * 60 * 60 * 1000, // 1 day
+      sameSite: 'lax'
     },
     store: new MemorySessionStore({
       checkPeriod: 86400000 // prune expired entries every 24h

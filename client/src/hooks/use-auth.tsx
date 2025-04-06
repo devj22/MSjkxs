@@ -52,6 +52,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const {
     data: authData,
     isLoading,
+    refetch: refetchAuthStatus,
   } = useQuery<AuthStatusResponse>({
     queryKey: ["auth", "status"],
     queryFn: async () => {
@@ -61,6 +62,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return { success: true, authenticated: false };
       }
     },
+    refetchInterval: 5000, // Refetch every 5 seconds to ensure fresh auth state
+    refetchOnWindowFocus: true, // Refetch when window gets focus
   });
 
   const isAuthenticated = authData?.authenticated || false;
@@ -105,8 +108,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const result = await loginMutation.mutateAsync({ username, password });
       
       if (result.success) {
-        // Invalidate auth status query to fetch new state
+        // Immediately refetch auth status after login
+        await refetchAuthStatus();
+        
+        // Also invalidate the query to ensure fresh data
         queryClient.invalidateQueries({ queryKey: ["auth", "status"] });
+        
         toast({
           title: "Login Successful",
           description: "Welcome to the admin dashboard.",

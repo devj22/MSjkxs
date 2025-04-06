@@ -38,10 +38,23 @@ export default function AdminLogin() {
     setIsPending(true);
     
     try {
+      console.log("Attempting login with username:", username);
       const success = await login(username, password);
+      console.log("Login result:", success);
+      
       if (success) {
-        navigate("/admin");
+        // Add a small delay to ensure session is properly registered
+        setTimeout(() => {
+          navigate("/admin");
+        }, 500);
       }
+    } catch (error) {
+      console.error("Login error:", error);
+      toast({
+        title: "Login Error",
+        description: "An unexpected error occurred. Please try again.",
+        variant: "destructive",
+      });
     } finally {
       setIsPending(false);
     }
