@@ -24,10 +24,10 @@ export default function AdminAddProperty() {
   const [price, setPrice] = useState<number>(0);
   const [location, setLocation] = useState("");
   const [address, setAddress] = useState("");
-  const [bedrooms, setBedrooms] = useState<number>(0);
-  const [bathrooms, setBathrooms] = useState<number>(0);
+  const [bedrooms, setBedrooms] = useState<number>(0); // Keep for schema compatibility
+  const [bathrooms, setBathrooms] = useState<number>(0); // Keep for schema compatibility
   const [area, setArea] = useState<number>(0);
-  const [propertyType, setPropertyType] = useState("House");
+  const [propertyType, setPropertyType] = useState("Land");
   const [forSale, setForSale] = useState(true);
   const [featured, setFeatured] = useState(false);
   const [latitude, setLatitude] = useState<number>(40.7128);
@@ -63,26 +63,63 @@ export default function AdminAddProperty() {
         body: JSON.stringify(propertyData),
       });
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       toast({
-        title: "Property Added",
-        description: "The property has been added successfully.",
+        title: "Land Property Added",
+        description: "The land property has been added successfully.",
       });
       navigate("/admin/properties");
     },
-    onError: (error) => {
+    onError: (error: any) => {
+      console.error("Error adding property:", error);
+      
+      let errorMsg = "Failed to add property. Please try again.";
+      if (error?.message) {
+        errorMsg = error.message;
+      }
+      
       toast({
         title: "Error",
-        description: "Failed to add property. Please try again.",
+        description: errorMsg,
         variant: "destructive",
       });
-      console.error("Error adding property:", error);
     },
   });
   
   // Handle form submission
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Client-side validation
+    if (!title) {
+      toast({ title: "Error", description: "Title is required", variant: "destructive" });
+      return;
+    }
+    
+    if (!description) {
+      toast({ title: "Error", description: "Description is required", variant: "destructive" });
+      return;
+    }
+    
+    if (!location) {
+      toast({ title: "Error", description: "Location is required", variant: "destructive" });
+      return;
+    }
+    
+    if (!address) {
+      toast({ title: "Error", description: "Address is required", variant: "destructive" });
+      return;
+    }
+    
+    if (!area || area <= 0) {
+      toast({ title: "Error", description: "Area must be greater than 0", variant: "destructive" });
+      return;
+    }
+    
+    if (!price || price <= 0) {
+      toast({ title: "Error", description: "Price must be greater than 0", variant: "destructive" });
+      return;
+    }
     
     // Filter out empty image URLs
     const filteredImageUrls = imageUrls.filter((url) => url.trim() !== "");
@@ -102,8 +139,8 @@ export default function AdminAddProperty() {
       price,
       location,
       address,
-      bedrooms,
-      bathrooms,
+      bedrooms, // Always 0 for land
+      bathrooms, // Always 0 for land
       area,
       propertyType,
       forSale,
@@ -113,6 +150,7 @@ export default function AdminAddProperty() {
       imageUrls: filteredImageUrls,
     };
     
+    console.log("Submitting property data:", propertyData);
     createPropertyMutation.mutate(propertyData);
   };
 
@@ -134,7 +172,7 @@ export default function AdminAddProperty() {
                 Back to Dashboard
               </Button>
               <h1 className="text-2xl font-display font-bold text-primary">
-                Add New Property
+                Add New Land Property
               </h1>
             </div>
             <Button 
@@ -164,7 +202,7 @@ export default function AdminAddProperty() {
                     <Label htmlFor="title" className="mb-2 block">Title*</Label>
                     <Input
                       id="title"
-                      placeholder="e.g., Luxury Villa in Highland Park"
+                      placeholder="e.g., Prime Land Plot in Nainaland Estates"
                       value={title}
                       onChange={(e) => setTitle(e.target.value)}
                       required
@@ -189,7 +227,7 @@ export default function AdminAddProperty() {
                   <Label htmlFor="description" className="mb-2 block">Description*</Label>
                   <Textarea
                     id="description"
-                    placeholder="Detailed description of the property..."
+                    placeholder="Detailed description of the land plot, including features, vegetation, terrain, utilities, etc."
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
                     rows={5}
@@ -220,54 +258,51 @@ export default function AdminAddProperty() {
                   </div>
                 </div>
                 
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div>
-                    <Label htmlFor="bedrooms" className="mb-2 block">Bedrooms*</Label>
-                    <Input
-                      id="bedrooms"
-                      type="number"
-                      min="0"
-                      placeholder="e.g., 3"
-                      value={bedrooms}
-                      onChange={(e) => setBedrooms(Number(e.target.value))}
-                      required
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="bathrooms" className="mb-2 block">Bathrooms*</Label>
-                    <Input
-                      id="bathrooms"
-                      type="number"
-                      min="0"
-                      step="0.5"
-                      placeholder="e.g., 2.5"
-                      value={bathrooms}
-                      onChange={(e) => setBathrooms(Number(e.target.value))}
-                      required
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="area" className="mb-2 block">Area (sq ft)*</Label>
+                    <Label htmlFor="area" className="mb-2 block">Land Area (sq ft)*</Label>
                     <Input
                       id="area"
                       type="number"
                       min="0"
-                      placeholder="e.g., 2000"
+                      placeholder="e.g., 10000"
                       value={area}
                       onChange={(e) => setArea(Number(e.target.value))}
                       required
                     />
                   </div>
                   <div>
-                    <Label htmlFor="propertyType" className="mb-2 block">Property Type*</Label>
+                    <Label htmlFor="propertyType" className="mb-2 block">Land Type*</Label>
                     <Input
                       id="propertyType"
-                      placeholder="e.g., House, Apartment, Condo"
+                      placeholder="e.g., Residential, Commercial, Agricultural"
                       value={propertyType}
                       onChange={(e) => setPropertyType(e.target.value)}
                       required
                     />
                   </div>
+                  <div>
+                    <Label htmlFor="zoning" className="mb-2 block">Zoning/Usage</Label>
+                    <Input
+                      id="zoning"
+                      placeholder="e.g., Residential, Commercial, Mixed-use"
+                      defaultValue="Residential"
+                    />
+                  </div>
+                  
+                  {/* Hidden inputs for bedrooms and bathrooms to satisfy schema */}
+                  <input 
+                    type="hidden" 
+                    id="bedrooms" 
+                    value={bedrooms} 
+                    onChange={(e) => setBedrooms(Number(e.target.value))}
+                  />
+                  <input 
+                    type="hidden" 
+                    id="bathrooms" 
+                    value={bathrooms} 
+                    onChange={(e) => setBathrooms(Number(e.target.value))}
+                  />
                 </div>
                 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

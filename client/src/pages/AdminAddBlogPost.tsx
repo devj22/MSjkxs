@@ -24,7 +24,7 @@ export default function AdminAddBlogPost() {
   const [summary, setSummary] = useState("");
   const [content, setContent] = useState("");
   const [author, setAuthor] = useState("Admin");
-  const [category, setCategory] = useState("Market Trends");
+  const [category, setCategory] = useState("Land Investment");
   const [imageUrl, setImageUrl] = useState("");
   const [previewTab, setPreviewTab] = useState<string>("edit");
   
@@ -52,13 +52,19 @@ export default function AdminAddBlogPost() {
       });
       navigate("/admin/blog");
     },
-    onError: (error) => {
+    onError: (error: any) => {
+      console.error("Error adding blog post:", error);
+      
+      let errorMsg = "Failed to publish blog post. Please try again.";
+      if (error?.message) {
+        errorMsg = error.message;
+      }
+      
       toast({
         title: "Error",
-        description: "Failed to publish blog post. Please try again.",
+        description: errorMsg,
         variant: "destructive",
       });
-      console.error("Error adding blog post:", error);
     },
   });
   
@@ -66,10 +72,65 @@ export default function AdminAddBlogPost() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!title || !slug || !content || !author || !category || !imageUrl) {
+    // Client-side validation
+    if (!title) {
       toast({
         title: "Error",
-        description: "All fields are required.",
+        description: "Title is required.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    if (!slug) {
+      toast({
+        title: "Error",
+        description: "Slug is required.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    if (!summary) {
+      toast({
+        title: "Error",
+        description: "Summary is required.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    if (!content) {
+      toast({
+        title: "Error",
+        description: "Content is required.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    if (!author) {
+      toast({
+        title: "Error",
+        description: "Author is required.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    if (!category) {
+      toast({
+        title: "Error",
+        description: "Category is required.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    if (!imageUrl) {
+      toast({
+        title: "Error",
+        description: "Image URL is required.",
         variant: "destructive",
       });
       return;
@@ -85,6 +146,7 @@ export default function AdminAddBlogPost() {
       imageUrl,
     };
     
+    console.log("Submitting blog data:", blogData);
     createBlogPostMutation.mutate(blogData);
   };
 
@@ -135,7 +197,7 @@ export default function AdminAddBlogPost() {
                       <Label htmlFor="title" className="mb-2 block">Post Title*</Label>
                       <Input
                         id="title"
-                        placeholder="e.g., Top 10 Neighborhoods in 2025"
+                        placeholder="e.g., 5 Tips for Investing in Agricultural Land"
                         value={title}
                         onChange={(e) => setTitle(e.target.value)}
                         onBlur={generateSlug}
@@ -150,7 +212,7 @@ export default function AdminAddBlogPost() {
                       <div className="flex gap-2">
                         <Input
                           id="slug"
-                          placeholder="e.g., top-10-neighborhoods-2025"
+                          placeholder="e.g., 5-tips-investing-agricultural-land"
                           value={slug}
                           onChange={(e) => setSlug(e.target.value)}
                           required
@@ -169,7 +231,7 @@ export default function AdminAddBlogPost() {
                       <Label htmlFor="summary" className="mb-2 block">Summary*</Label>
                       <Textarea
                         id="summary"
-                        placeholder="Brief summary of the post (will appear in listings)"
+                        placeholder="Brief summary about land investment tips, market trends, or development opportunities..."
                         value={summary}
                         onChange={(e) => setSummary(e.target.value)}
                         rows={3}
@@ -252,7 +314,7 @@ export default function AdminAddBlogPost() {
                     <Label htmlFor="category" className="mb-2 block">Category*</Label>
                     <Input
                       id="category"
-                      placeholder="e.g., Market Trends, Home Improvement"
+                      placeholder="e.g., Land Investment, Agricultural, Commercial Development"
                       value={category}
                       onChange={(e) => setCategory(e.target.value)}
                       required
