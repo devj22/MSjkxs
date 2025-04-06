@@ -2,6 +2,7 @@ import { Switch, Route } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
+import { AuthProvider, ProtectedRoute } from "@/hooks/use-auth";
 import NotFound from "@/pages/not-found";
 import Home from "@/pages/Home";
 import Properties from "@/pages/Properties";
@@ -27,13 +28,45 @@ function Router() {
       <Route path="/blog" component={Blog} />
       <Route path="/blog/:slug" component={BlogPostDetails} />
       
-      {/* Admin Routes */}
+      {/* Admin Login Route */}
       <Route path="/admin/login" component={AdminLogin} />
-      <Route path="/admin" component={Admin} />
-      <Route path="/admin/properties" component={AdminProperties} />
-      <Route path="/admin/properties/add" component={AdminAddProperty} />
-      <Route path="/admin/blog" component={AdminBlog} />
-      <Route path="/admin/blog/add" component={AdminAddBlogPost} />
+      
+      {/* Protected Admin Routes */}
+      <Route path="/admin">
+        {() => (
+          <ProtectedRoute>
+            <Admin />
+          </ProtectedRoute>
+        )}
+      </Route>
+      <Route path="/admin/properties">
+        {() => (
+          <ProtectedRoute>
+            <AdminProperties />
+          </ProtectedRoute>
+        )}
+      </Route>
+      <Route path="/admin/properties/add">
+        {() => (
+          <ProtectedRoute>
+            <AdminAddProperty />
+          </ProtectedRoute>
+        )}
+      </Route>
+      <Route path="/admin/blog">
+        {() => (
+          <ProtectedRoute>
+            <AdminBlog />
+          </ProtectedRoute>
+        )}
+      </Route>
+      <Route path="/admin/blog/add">
+        {() => (
+          <ProtectedRoute>
+            <AdminAddBlogPost />
+          </ProtectedRoute>
+        )}
+      </Route>
       
       {/* Fallback to 404 */}
       <Route component={NotFound} />
@@ -44,8 +77,10 @@ function Router() {
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <Router />
-      <Toaster />
+      <AuthProvider>
+        <Router />
+        <Toaster />
+      </AuthProvider>
     </QueryClientProvider>
   );
 }

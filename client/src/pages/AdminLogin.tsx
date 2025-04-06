@@ -103,7 +103,7 @@ export default function AdminLogin() {
             <div className="text-center text-sm text-gray-500 mt-4">
               <p>For demo purposes:</p>
               <p>Username: <span className="font-mono">admin</span></p>
-              <p>Password: <span className="font-mono">password</span></p>
+              <p>Password: <span className="font-mono">admin123</span></p>
             </div>
           </form>
         </div>
