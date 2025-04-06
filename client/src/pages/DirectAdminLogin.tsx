@@ -34,8 +34,8 @@ export default function DirectAdminLogin() {
     setErrorMessage("");
     
     try {
-      // Directly fetch the login endpoint
-      const response = await fetch("/api/auth/login", {
+      // Directly fetch the login endpoint using our new direct-login route
+      const response = await fetch("/api/auth/direct-login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
