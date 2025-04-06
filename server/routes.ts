@@ -4,7 +4,7 @@ import { storage } from "./storage";
 import { 
   insertContactSchema, 
   insertPropertySchema, 
-  insertBlogPostSchema 
+  insertBlogPostSchema
 } from "@shared/schema";
 import { ZodError, z } from "zod";
 import { fromZodError } from "zod-validation-error";
@@ -35,13 +35,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     resave: false,
     saveUninitialized: false,
     cookie: { 
-      secure: process.env.NODE_ENV === 'production',
+      secure: false, // Set to false for development
+      httpOnly: true,
       maxAge: 24 * 60 * 60 * 1000 // 1 day
     },
     store: new MemorySessionStore({
       checkPeriod: 86400000 // prune expired entries every 24h
     })
   }));
+  
+  // Trust first proxy
+  app.set('trust proxy', 1);
   
   // Initialize passport
   app.use(passport.initialize());
@@ -86,24 +90,57 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
   
   // Authentication routes
-  app.post('/api/auth/login', 
-    passport.authenticate('local'),
-    (req, res) => {
-      // Authentication succeeded, return user info
-      res.json({
-        success: true,
-        message: 'Authentication successful',
-        user: {
-          id: (req.user as any).id,
-          username: (req.user as any).username,
-          // Don't include password in response
+  app.post('/api/auth/login', (req, res, next) => {
+    console.log('Login attempt:', req.body.username);
+    
+    passport.authenticate('local', (err: any, user: any, info: any) => {
+      if (err) {
+        console.error('Login error:', err);
+        return res.status(500).json({
+          success: false,
+          message: 'Internal server error during authentication'
+        });
+      }
+      
+      if (!user) {
+        console.log('Login failed:', info?.message);
+        return res.status(401).json({
+          success: false,
+          message: info?.message || 'Invalid username or password'
+        });
+      }
+      
+      // Manual login using req.login
+      req.login(user, (loginErr) => {
+        if (loginErr) {
+          console.error('Session save error:', loginErr);
+          return res.status(500).json({
+            success: false,
+            message: 'Error saving session'
+          });
         }
+        
+        console.log('Login successful, session saved for user:', user.id);
+        
+        // Return success with user info
+        return res.json({
+          success: true,
+          message: 'Authentication successful',
+          user: {
+            id: user.id,
+            username: user.username
+          }
+        });
       });
-    }
-  );
+    })(req, res, next);
+  });
   
   app.get('/api/auth/status', (req, res) => {
+    console.log('Auth status check. Session ID:', req.sessionID);
+    console.log('Is authenticated:', req.isAuthenticated());
+    
     if (req.isAuthenticated()) {
+      console.log('User from session:', req.user);
       res.json({
         success: true,
         authenticated: true,
@@ -114,6 +151,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       });
     } else {
+      console.log('No authenticated user found in session');
       res.json({
         success: true,
         authenticated: false
