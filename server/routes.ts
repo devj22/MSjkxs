@@ -13,27 +13,8 @@ import { Strategy as LocalStrategy } from "passport-local";
 import session from "express-session";
 import MemoryStore from "memorystore";
 
-// Extend session with our custom data
-declare module 'express-session' {
-  interface SessionData {
-    adminToken?: {
-      userId: number;
-      username: string;
-      expiresAt: number;
-    };
-  }
-}
-
 // Create an authenticated middleware to protect admin routes
 const isAuthenticated = (req: Request, res: Response, next: NextFunction) => {
-  // First check for admin token (direct login)
-  const adminToken = req.session.adminToken;
-  if (adminToken && adminToken.expiresAt > Date.now()) {
-    console.log('Admin route accessed with valid admin token for user:', adminToken.username);
-    return next();
-  }
-  
-  // Then check for passport session
   if (req.isAuthenticated()) {
     return next();
   }
@@ -51,13 +32,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Configure session middleware
   app.use(session({
     secret: process.env.SESSION_SECRET || 'nainaland-session-secret',
-    resave: true,
-    saveUninitialized: true,
+    resave: false,
+    saveUninitialized: false,
     cookie: { 
       secure: false, // Set to false for development
       httpOnly: true,
-      maxAge: 24 * 60 * 60 * 1000, // 1 day
-      sameSite: 'lax'
+      maxAge: 24 * 60 * 60 * 1000 // 1 day
     },
     store: new MemorySessionStore({
       checkPeriod: 86400000 // prune expired entries every 24h
@@ -140,181 +120,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
           });
         }
         
-        // Save the session explicitly to ensure it's immediately persisted
-        req.session.save((saveErr) => {
-          if (saveErr) {
-            console.error('Error saving session explicitly:', saveErr);
-            return res.status(500).json({
-              success: false,
-              message: 'Error persisting session data'
-            });
+        console.log('Login successful, session saved for user:', user.id);
+        
+        // Return success with user info
+        return res.json({
+          success: true,
+          message: 'Authentication successful',
+          user: {
+            id: user.id,
+            username: user.username
           }
-          
-          console.log('Login successful, session saved for user:', user.id);
-          console.log('Session ID:', req.sessionID);
-          
-          // Return success with user info
-          return res.json({
-            success: true,
-            message: 'Authentication successful',
-            user: {
-              id: user.id,
-              username: user.username
-            }
-          });
         });
       });
     })(req, res, next);
   });
   
-  // Simple authentication for the DirectAdminLogin component
-  app.post('/api/auth/direct-login', async (req, res) => {
-    try {
-      const { username, password } = req.body;
-      console.log('Direct login attempt:', username);
-      
-      // Validate required fields
-      if (!username || !password) {
-        return res.status(400).json({
-          success: false,
-          message: 'Username and password are required'
-        });
-      }
-      
-      // Get user from storage
-      const user = await storage.getUserByUsername(username);
-      
-      // Check if user exists
-      if (!user) {
-        console.log('Direct login failed: User not found');
-        return res.status(401).json({
-          success: false,
-          message: 'Invalid username or password'
-        });
-      }
-      
-      // Check password (in a real app, you would use bcrypt)
-      if (password !== user.password) {
-        console.log('Direct login failed: Incorrect password');
-        return res.status(401).json({
-          success: false,
-          message: 'Invalid username or password'
-        });
-      }
-      
-      // Create an admin token with an expiry time
-      const adminToken = {
-        userId: user.id,
-        username: user.username,
-        expiresAt: Date.now() + 24 * 60 * 60 * 1000 // 24 hours
-      };
-      
-      // Store token in session
-      req.session.adminToken = adminToken;
-      
-      // Save session explicitly
-      req.session.save((err) => {
-        if (err) {
-          console.error('Error saving admin token session:', err);
-          return res.status(500).json({
-            success: false,
-            message: 'Error persisting authentication data'
-          });
-        }
-        
-        console.log('Direct login successful, token created for user:', user.id);
-        console.log('Session ID:', req.sessionID);
-        
-        // Return success with token info
-        return res.json({
-          success: true,
-          message: 'Authentication successful',
-          token: {
-            userId: adminToken.userId,
-            username: adminToken.username,
-            expiresAt: adminToken.expiresAt
-          }
-        });
-      });
-    } catch (error) {
-      console.error('Error in direct login:', error);
-      res.status(500).json({
-        success: false,
-        message: 'Internal server error during authentication'
-      });
-    }
-  });
-  
-  // Check admin token (for direct login)
-  app.get('/api/auth/verify-admin', (req, res) => {
-    try {
-      // Check if admin token exists and is valid
-      const adminToken = req.session.adminToken;
-      
-      if (!adminToken) {
-        return res.json({
-          success: true,
-          isAdmin: false,
-          message: 'No admin token found'
-        });
-      }
-      
-      // Check if token is expired
-      if (adminToken.expiresAt < Date.now()) {
-        // Clear expired token
-        delete req.session.adminToken;
-        req.session.save();
-        
-        return res.json({
-          success: true,
-          isAdmin: false,
-          message: 'Admin token expired'
-        });
-      }
-      
-      // Token is valid
-      console.log('Valid admin token found for user:', adminToken.username);
-      
-      return res.json({
-        success: true,
-        isAdmin: true,
-        user: {
-          id: adminToken.userId,
-          username: adminToken.username
-        }
-      });
-    } catch (error) {
-      console.error('Error verifying admin token:', error);
-      res.status(500).json({
-        success: false,
-        message: 'Error verifying authentication status'
-      });
-    }
-  });
-  
   app.get('/api/auth/status', (req, res) => {
     console.log('Auth status check. Session ID:', req.sessionID);
     console.log('Is authenticated:', req.isAuthenticated());
-    console.log('Session object:', req.session);
     
-    // For debugging only: Print all available cookies
-    console.log('Cookies received:', req.headers.cookie);
-    
-    // First check for admin token (direct login)
-    const adminToken = req.session.adminToken;
-    if (adminToken && adminToken.expiresAt > Date.now()) {
-      console.log('Valid admin token found for user:', adminToken.username);
-      return res.json({
-        success: true,
-        authenticated: true,
-        user: {
-          id: adminToken.userId,
-          username: adminToken.username,
-        }
-      });
-    }
-    
-    // Then check for passport session
     if (req.isAuthenticated()) {
       console.log('User from session:', req.user);
       res.json({
@@ -330,23 +154,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log('No authenticated user found in session');
       res.json({
         success: true,
-        authenticated: false,
-        // Include session ID for debugging 
-        debug: {
-          sessionId: req.sessionID
-        }
+        authenticated: false
       });
     }
   });
   
   app.post('/api/auth/logout', (req, res) => {
-    // Check if there's an admin token and remove it
-    if (req.session.adminToken) {
-      delete req.session.adminToken;
-      console.log('Admin token removed during logout');
-    }
-    
-    // Also handle regular passport logout
     req.logout((err) => {
       if (err) {
         return res.status(500).json({
@@ -356,22 +169,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
       
-      // Save the session after modifications
-      req.session.save((saveErr) => {
-        if (saveErr) {
-          console.error('Error saving session during logout:', saveErr);
-          return res.status(500).json({
-            success: false,
-            message: 'Error completing logout process'
-          });
-        }
-        
-        console.log('User logged out successfully, session ID:', req.sessionID);
-        
-        res.json({
-          success: true,
-          message: 'Logged out successfully'
-        });
+      res.json({
+        success: true,
+        message: 'Logged out successfully'
       });
     });
   });

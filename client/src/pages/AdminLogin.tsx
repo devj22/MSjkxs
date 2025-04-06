@@ -38,31 +38,10 @@ export default function AdminLogin() {
     setIsPending(true);
     
     try {
-      console.log("Attempting login with username:", username);
       const success = await login(username, password);
-      console.log("Login result:", success);
-      
       if (success) {
-        // Add a small delay to ensure session is properly registered
-        console.log("Login successful, navigating to admin in 1 second...");
-        toast({
-          title: "Login Successful",
-          description: "Redirecting to admin dashboard...",
-        });
-        
-        // Use a longer delay to ensure the session is properly established
-        setTimeout(() => {
-          console.log("Navigating to admin dashboard now");
-          window.location.href = "/admin";  // Using direct window navigation instead of wouter
-        }, 1000);
+        navigate("/admin");
       }
-    } catch (error) {
-      console.error("Login error:", error);
-      toast({
-        title: "Login Error",
-        description: "An unexpected error occurred. Please try again.",
-        variant: "destructive",
-      });
     } finally {
       setIsPending(false);
     }

@@ -43,14 +43,12 @@ export const propertyListings = pgTable("property_listings", {
   bedrooms: integer("bedrooms").notNull(),
   bathrooms: integer("bathrooms").notNull(),
   area: integer("area").notNull(), // in square feet
-  areaUnit: text("area_unit").notNull().default("sqft"), // sqft, gunta, acre
   propertyType: text("property_type").notNull(), // apartment, house, villa, etc.
   forSale: boolean("for_sale").notNull().default(true), // true for sale, false for rent
   featured: boolean("featured").notNull().default(false),
   latitude: doublePrecision("latitude").notNull(),
   longitude: doublePrecision("longitude").notNull(),
   imageUrls: text("image_urls").array().notNull(),
-  youtubeUrl: text("youtube_url").default("").notNull(), // Optional YouTube video URL
   createdAt: text("created_at").notNull().default(new Date().toISOString()),
 });
 
@@ -64,22 +62,18 @@ const basePropertySchema = createInsertSchema(propertyListings).pick({
   bedrooms: true,
   bathrooms: true,
   area: true,
-  areaUnit: true,
   propertyType: true,
   forSale: true,
   featured: true,
   latitude: true,
   longitude: true,
   imageUrls: true,
-  youtubeUrl: true,
 });
 
-// Extend it with Zod to make bedrooms, bathrooms and youtubeUrl optional with default values
+// Extend it with Zod to make bedrooms and bathrooms optional with default values
 export const insertPropertySchema = basePropertySchema.extend({
   bedrooms: z.number().default(0),
   bathrooms: z.number().default(0),
-  areaUnit: z.enum(["sqft", "gunta", "acre"]).default("sqft"),
-  youtubeUrl: z.string().default(''),
 });
 
 // Blog/News post schema

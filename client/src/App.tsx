@@ -11,7 +11,7 @@ import Blog from "@/pages/Blog";
 import BlogPostDetails from "@/pages/BlogPostDetails";
 
 // Admin Pages
-import DirectAdminLogin from "./pages/DirectAdminLogin";
+import AdminLogin from "./pages/AdminLogin";
 import Admin from "./pages/Admin";
 import AdminProperties from "./pages/AdminProperties";
 import AdminAddProperty from "./pages/AdminAddProperty";
@@ -29,7 +29,7 @@ function Router() {
       <Route path="/blog/:slug" component={BlogPostDetails} />
       
       {/* Admin Login Route */}
-      <Route path="/admin/login" component={DirectAdminLogin} />
+      <Route path="/admin/login" component={AdminLogin} />
       
       {/* Protected Admin Routes */}
       <Route path="/admin">

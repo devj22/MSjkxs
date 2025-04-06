@@ -5,14 +5,13 @@ import { apiRequest } from "@/lib/queryClient";
 import { InsertProperty } from "@shared/schema";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { ArrowLeft, Save, Plus, X, Youtube } from "lucide-react";
+import { ArrowLeft, Save, Plus, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Switch } from "@/components/ui/switch";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 
 export default function AdminAddProperty() {
@@ -35,8 +34,6 @@ export default function AdminAddProperty() {
   const [latitude, setLatitude] = useState<number>(40.7128);
   const [longitude, setLongitude] = useState<number>(-74.0060);
   const [imageUrls, setImageUrls] = useState<string[]>([""]);
-  const [youtubeUrl, setYoutubeUrl] = useState("");
-  const [areaUnit, setAreaUnit] = useState<"sqft" | "gunta" | "acre">("sqft");
   
   // Handle image URL changes
   const handleImageUrlChange = (index: number, value: string) => {
@@ -146,14 +143,12 @@ export default function AdminAddProperty() {
       bedrooms: 0, // Always 0 for land properties
       bathrooms: 0, // Always 0 for land properties
       area,
-      areaUnit,
       propertyType,
       forSale,
       featured,
       latitude,
       longitude,
       imageUrls: filteredImageUrls,
-      youtubeUrl,
     };
     
     console.log("Submitting property data:", propertyData);
@@ -266,32 +261,16 @@ export default function AdminAddProperty() {
                 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div>
-                    <Label htmlFor="area" className="mb-2 block">Land Area*</Label>
-                    <div className="flex gap-2">
-                      <div className="flex-grow">
-                        <Input
-                          id="area"
-                          type="number"
-                          min="0"
-                          placeholder="e.g., 10000"
-                          value={area}
-                          onChange={(e) => setArea(Number(e.target.value))}
-                          required
-                        />
-                      </div>
-                      <div className="w-24">
-                        <Select value={areaUnit} onValueChange={(value: "sqft" | "gunta" | "acre") => setAreaUnit(value)}>
-                          <SelectTrigger id="areaUnit">
-                            <SelectValue placeholder="Unit" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="sqft">sq.ft</SelectItem>
-                            <SelectItem value="gunta">Gunta</SelectItem>
-                            <SelectItem value="acre">Acre</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    </div>
+                    <Label htmlFor="area" className="mb-2 block">Land Area (sq ft)*</Label>
+                    <Input
+                      id="area"
+                      type="number"
+                      min="0"
+                      placeholder="e.g., 10000"
+                      value={area}
+                      onChange={(e) => setArea(Number(e.target.value))}
+                      required
+                    />
                   </div>
                   <div>
                     <Label htmlFor="propertyType" className="mb-2 block">Land Type*</Label>
@@ -364,37 +343,6 @@ export default function AdminAddProperty() {
                     />
                   </div>
                 </div>
-              </div>
-              
-              {/* YouTube Video */}
-              <div className="space-y-4">
-                <h2 className="text-xl font-bold">YouTube Video (Optional)</h2>
-                <div className="flex items-center gap-3">
-                  <div className="flex-grow">
-                    <Label htmlFor="youtubeUrl" className="mb-2 block">YouTube Video URL</Label>
-                    <Input
-                      id="youtubeUrl"
-                      placeholder="e.g., https://www.youtube.com/watch?v=XXXXXXXXXXX"
-                      value={youtubeUrl}
-                      onChange={(e) => setYoutubeUrl(e.target.value)}
-                    />
-                  </div>
-                  <div className="flex-shrink-0 self-end mb-0.5">
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="icon"
-                      className="text-red-500"
-                      onClick={() => setYoutubeUrl("")}
-                      disabled={!youtubeUrl}
-                    >
-                      <X className="h-5 w-5" />
-                    </Button>
-                  </div>
-                </div>
-                <p className="text-sm text-gray-500">
-                  Add a YouTube video tour of the property if available.
-                </p>
               </div>
               
               {/* Images */}
