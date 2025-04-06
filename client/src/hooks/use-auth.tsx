@@ -183,13 +183,22 @@ export function useAuth() {
 // Protected route component
 export function ProtectedRoute({ children }: { children: ReactNode }) {
   const [, navigate] = useLocation();
-  const { isAuthenticated, isLoading } = useAuth();
+  const { isAuthenticated, isLoading, user } = useAuth();
 
   useEffect(() => {
-    if (!isLoading && !isAuthenticated) {
-      navigate("/admin/login");
-    }
-  }, [isAuthenticated, isLoading, navigate]);
+    const checkAuth = async () => {
+      console.log("ProtectedRoute - Auth state:", { isAuthenticated, isLoading, user });
+      
+      if (!isLoading && !isAuthenticated) {
+        console.log("Not authenticated, redirecting to login page");
+        
+        // Use window.location for a hard redirect instead of wouter
+        window.location.href = "/admin/login";
+      }
+    };
+    
+    checkAuth();
+  }, [isAuthenticated, isLoading, user, navigate]);
 
   if (isLoading) {
     return (
@@ -199,5 +208,23 @@ export function ProtectedRoute({ children }: { children: ReactNode }) {
     );
   }
 
-  return isAuthenticated ? <>{children}</> : null;
+  // If we get to this point and not authenticated, show a message
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center p-4">
+        <div className="bg-white p-8 rounded-lg shadow-lg max-w-md w-full text-center">
+          <h1 className="text-2xl font-bold text-red-600 mb-4">Authentication Required</h1>
+          <p className="mb-4">Please log in to access the admin dashboard.</p>
+          <button 
+            onClick={() => window.location.href = "/admin/login"} 
+            className="px-4 py-2 bg-primary text-white rounded-md hover:bg-primary/90"
+          >
+            Go to Login Page
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  return <>{children}</>;
 }

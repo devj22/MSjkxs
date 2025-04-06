@@ -1,5 +1,4 @@
-import { useState, useEffect } from "react";
-import { useLocation } from "wouter";
+import { useEffect, useState } from "react";
 import { COMPANY_INFO } from "@/lib/constants";
 import { ArrowRight, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -8,61 +7,61 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
 
-export default function AdminLogin() {
-  const [, navigate] = useLocation();
+export default function DirectAdminLogin() {
   const { toast } = useToast();
-  const { login, isAuthenticated, isLoading } = useAuth();
+  const { isAuthenticated, isLoading } = useAuth();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [isPending, setIsPending] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
   
   // Redirect if already authenticated
   useEffect(() => {
     if (isAuthenticated) {
-      navigate("/admin");
+      window.location.href = "/admin";
     }
-  }, [isAuthenticated, navigate]);
+  }, [isAuthenticated]);
   
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!username || !password) {
-      toast({
-        title: "Error",
-        description: "Please enter both username and password.",
-        variant: "destructive",
-      });
+      setErrorMessage("Please enter both username and password.");
       return;
     }
     
     setIsPending(true);
+    setErrorMessage("");
     
     try {
-      console.log("Attempting login with username:", username);
-      const success = await login(username, password);
-      console.log("Login result:", success);
+      // Directly fetch the login endpoint
+      const response = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ username, password }),
+        credentials: "include" // This is important for cookies
+      });
       
-      if (success) {
-        // Add a small delay to ensure session is properly registered
-        console.log("Login successful, navigating to admin in 1 second...");
+      const data = await response.json();
+      
+      if (data.success) {
         toast({
           title: "Login Successful",
           description: "Redirecting to admin dashboard...",
         });
         
-        // Use a longer delay to ensure the session is properly established
+        // Hard reload to the admin page
         setTimeout(() => {
-          console.log("Navigating to admin dashboard now");
-          window.location.href = "/admin";  // Using direct window navigation instead of wouter
+          window.location.href = "/admin";
         }, 1000);
+      } else {
+        setErrorMessage(data.message || "Invalid username or password");
       }
     } catch (error) {
       console.error("Login error:", error);
-      toast({
-        title: "Login Error",
-        description: "An unexpected error occurred. Please try again.",
-        variant: "destructive",
-      });
+      setErrorMessage("An unexpected error occurred");
     } finally {
       setIsPending(false);
     }
@@ -82,6 +81,12 @@ export default function AdminLogin() {
         
         <div className="bg-white rounded-lg shadow-md p-8">
           <form onSubmit={handleSubmit} className="space-y-6">
+            {errorMessage && (
+              <div className="p-3 rounded-md bg-red-50 text-red-600 text-sm">
+                {errorMessage}
+              </div>
+            )}
+            
             <div className="space-y-4">
               <div>
                 <Label htmlFor="username" className="mb-2 block">Username</Label>
@@ -130,7 +135,7 @@ export default function AdminLogin() {
         </div>
         
         <div className="mt-8 text-center">
-          <Button variant="link" onClick={() => navigate("/")}>
+          <Button variant="link" onClick={() => window.location.href = "/"}>
             Back to Website
           </Button>
         </div>

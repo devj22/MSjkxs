@@ -121,16 +121,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
           });
         }
         
-        console.log('Login successful, session saved for user:', user.id);
-        
-        // Return success with user info
-        return res.json({
-          success: true,
-          message: 'Authentication successful',
-          user: {
-            id: user.id,
-            username: user.username
+        // Save the session explicitly to ensure it's immediately persisted
+        req.session.save((saveErr) => {
+          if (saveErr) {
+            console.error('Error saving session explicitly:', saveErr);
+            return res.status(500).json({
+              success: false,
+              message: 'Error persisting session data'
+            });
           }
+          
+          console.log('Login successful, session saved for user:', user.id);
+          console.log('Session ID:', req.sessionID);
+          
+          // Return success with user info
+          return res.json({
+            success: true,
+            message: 'Authentication successful',
+            user: {
+              id: user.id,
+              username: user.username
+            }
+          });
         });
       });
     })(req, res, next);
@@ -139,6 +151,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/auth/status', (req, res) => {
     console.log('Auth status check. Session ID:', req.sessionID);
     console.log('Is authenticated:', req.isAuthenticated());
+    console.log('Session object:', req.session);
+    
+    // For debugging only: Print all available cookies
+    console.log('Cookies received:', req.headers.cookie);
     
     if (req.isAuthenticated()) {
       console.log('User from session:', req.user);
@@ -155,7 +171,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log('No authenticated user found in session');
       res.json({
         success: true,
-        authenticated: false
+        authenticated: false,
+        // Include session ID for debugging 
+        debug: {
+          sessionId: req.sessionID
+        }
       });
     }
   });
