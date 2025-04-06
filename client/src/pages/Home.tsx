@@ -3,7 +3,6 @@ import HeroSection from "@/components/HeroSection";
 import AboutSection from "@/components/AboutSection";
 import FeaturesSection from "@/components/FeaturesSection";
 import ParallaxSection from "@/components/ParallaxSection";
-import PropertyCarousel from "@/components/PropertyCarousel";
 import ContactSection from "@/components/ContactSection";
 import Footer from "@/components/Footer";
 import { useEffect } from "react";
@@ -38,9 +37,6 @@ export default function Home() {
       <HeroSection />
       <AboutSection />
       <FeaturesSection />
-      <div className="py-8 bg-gray-50">
-        <PropertyCarousel />
-      </div>
       <ParallaxSection />
       <ContactSection />
       <Footer />

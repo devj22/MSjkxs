@@ -1,15 +1,14 @@
 import { Link } from "wouter";
 import { Property } from "@shared/schema";
-import { MapPin, Ruler, Trees, Mountain } from "lucide-react";
+import { Bed, Bath, Ruler, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 
 interface PropertyCardProps {
   property: Property;
-  carouselStyle?: boolean;
 }
 
-export default function PropertyCard({ property, carouselStyle = false }: PropertyCardProps) {
+export default function PropertyCard({ property }: PropertyCardProps) {
   const formatPrice = (price: number) => {
     return price.toLocaleString('en-US', {
       style: 'currency',
@@ -19,20 +18,20 @@ export default function PropertyCard({ property, carouselStyle = false }: Proper
   };
 
   return (
-    <div className={`bg-white rounded-lg shadow-sm overflow-hidden transition-all hover:shadow-md ${carouselStyle ? 'h-full' : ''}`}>
+    <div className="bg-white rounded-lg shadow-sm overflow-hidden transition-shadow hover:shadow-md">
       <Link href={`/property/${property.id}`}>
-        <div className="relative aspect-[4/3] cursor-pointer overflow-hidden">
+        <div className="relative aspect-[4/3] cursor-pointer">
           <img 
             src={property.imageUrls[0]} 
             alt={property.title}
-            className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
+            className="w-full h-full object-cover"
           />
           {property.featured && (
             <Badge className="absolute top-2 left-2 bg-amber-500 hover:bg-amber-600">
               Featured
             </Badge>
           )}
-          <Badge className="absolute top-2 right-2 bg-primary hover:bg-primary/90">
+          <Badge className="absolute top-2 right-2 bg-blue-600 hover:bg-blue-700">
             {property.forSale ? 'For Sale' : 'For Rent'}
           </Badge>
         </div>
@@ -55,12 +54,12 @@ export default function PropertyCard({ property, carouselStyle = false }: Proper
         
         <div className="grid grid-cols-3 gap-2 mb-4">
           <div className="flex items-center text-gray-700">
-            <Trees className="h-4 w-4 mr-1 text-primary" />
-            <span>Land</span>
+            <Bed className="h-4 w-4 mr-1 text-primary" />
+            <span>{property.bedrooms} Bed</span>
           </div>
           <div className="flex items-center text-gray-700">
-            <Mountain className="h-4 w-4 mr-1 text-primary" />
-            <span>Plot</span>
+            <Bath className="h-4 w-4 mr-1 text-primary" />
+            <span>{property.bathrooms} Bath</span>
           </div>
           <div className="flex items-center text-gray-700">
             <Ruler className="h-4 w-4 mr-1 text-primary" />
