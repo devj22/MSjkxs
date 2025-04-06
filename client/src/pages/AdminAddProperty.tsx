@@ -24,8 +24,9 @@ export default function AdminAddProperty() {
   const [price, setPrice] = useState<number>(0);
   const [location, setLocation] = useState("");
   const [address, setAddress] = useState("");
-  const [bedrooms, setBedrooms] = useState<number>(0); // Keep for schema compatibility
-  const [bathrooms, setBathrooms] = useState<number>(0); // Keep for schema compatibility
+  // We still track these state variables for hidden inputs
+  const [bedrooms, setBedrooms] = useState<number>(0); 
+  const [bathrooms, setBathrooms] = useState<number>(0);
   const [area, setArea] = useState<number>(0);
   const [propertyType, setPropertyType] = useState("Land");
   const [forSale, setForSale] = useState(true);
@@ -139,8 +140,8 @@ export default function AdminAddProperty() {
       price,
       location,
       address,
-      bedrooms, // Always 0 for land
-      bathrooms, // Always 0 for land
+      bedrooms: 0, // Always 0 for land properties
+      bathrooms: 0, // Always 0 for land properties
       area,
       propertyType,
       forSale,
@@ -290,19 +291,7 @@ export default function AdminAddProperty() {
                     />
                   </div>
                   
-                  {/* Hidden inputs for bedrooms and bathrooms to satisfy schema */}
-                  <input 
-                    type="hidden" 
-                    id="bedrooms" 
-                    value={bedrooms} 
-                    onChange={(e) => setBedrooms(Number(e.target.value))}
-                  />
-                  <input 
-                    type="hidden" 
-                    id="bathrooms" 
-                    value={bathrooms} 
-                    onChange={(e) => setBathrooms(Number(e.target.value))}
-                  />
+                  {/* No need for hidden inputs since we're hardcoding values to 0 in propertyData */}
                 </div>
                 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

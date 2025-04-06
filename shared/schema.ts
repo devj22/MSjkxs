@@ -52,7 +52,8 @@ export const propertyListings = pgTable("property_listings", {
   createdAt: text("created_at").notNull().default(new Date().toISOString()),
 });
 
-export const insertPropertySchema = createInsertSchema(propertyListings).pick({
+// Create a base schema
+const basePropertySchema = createInsertSchema(propertyListings).pick({
   title: true,
   description: true,
   price: true,
@@ -67,6 +68,12 @@ export const insertPropertySchema = createInsertSchema(propertyListings).pick({
   latitude: true,
   longitude: true,
   imageUrls: true,
+});
+
+// Extend it with Zod to make bedrooms and bathrooms optional with default values
+export const insertPropertySchema = basePropertySchema.extend({
+  bedrooms: z.number().default(0),
+  bathrooms: z.number().default(0),
 });
 
 // Blog/News post schema
