@@ -1,8 +1,10 @@
 import Navbar from "@/components/Navbar";
 import HeroSection from "@/components/HeroSection";
 import AboutSection from "@/components/AboutSection";
+import FeaturedProperties from "@/components/FeaturedProperties";
 import FeaturesSection from "@/components/FeaturesSection";
 import ParallaxSection from "@/components/ParallaxSection";
+import Testimonials from "@/components/Testimonials";
 import ContactSection from "@/components/ContactSection";
 import Footer from "@/components/Footer";
 import { useEffect } from "react";
@@ -36,8 +38,10 @@ export default function Home() {
       <Navbar />
       <HeroSection />
       <AboutSection />
+      <FeaturedProperties />
       <FeaturesSection />
       <ParallaxSection />
+      <Testimonials />
       <ContactSection />
       <Footer />
     </div>

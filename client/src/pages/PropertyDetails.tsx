@@ -61,12 +61,35 @@ export default function PropertyDetails() {
 
   const property: Property | undefined = propertyData?.data;
   
-  const formatPrice = (price: number) => {
-    return price.toLocaleString('en-US', {
+  const formatPrice = (price: number | undefined) => {
+    if (!price && price !== 0) return "Price on request";
+    
+    const numericValue = price.toLocaleString('en-US', {
       style: 'currency',
-      currency: 'USD',
+      currency: 'INR',
       maximumFractionDigits: 0,
     });
+    
+    // Convert to words for land pricing (Indian style)
+    const inWords = convertToIndianWords(price);
+    
+    return `${numericValue} (${inWords})`;
+  };
+  
+  // Function to convert numbers to Indian style words (lakhs, crores)
+  const convertToIndianWords = (num: number): string => {
+    if (num >= 10000000) { // 1 crore
+      const crores = (num / 10000000);
+      return `${crores.toFixed(crores % 1 === 0 ? 0 : 2)} Crore`;
+    } else if (num >= 100000) { // 1 lakh
+      const lakhs = (num / 100000);
+      return `${lakhs.toFixed(lakhs % 1 === 0 ? 0 : 2)} Lakh`;
+    } else if (num >= 1000) { // 1 thousand
+      const thousands = (num / 1000);
+      return `${thousands.toFixed(thousands % 1 === 0 ? 0 : 2)} Thousand`;
+    } else {
+      return num.toString();
+    }
   };
 
   // Load Google Maps when tab is selected
@@ -118,7 +141,7 @@ export default function PropertyDetails() {
             <div className="flex flex-wrap gap-2 mb-4">
               <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
                 <Tag className="h-4 w-4 mr-1" />
-                {property.propertyType}
+                {property.propertyType || 'Land'}
               </span>
               <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
                 <Calendar className="h-4 w-4 mr-1" />
@@ -138,7 +161,7 @@ export default function PropertyDetails() {
                 </h1>
                 <div className="flex items-center text-gray-600 mb-4">
                   <MapPin className="h-5 w-5 mr-2 text-red-500" />
-                  <span>{property.location}</span>
+                  <span>{property.location || 'Location not available'}</span>
                 </div>
               </div>
               <div className="flex flex-col items-start md:items-end">
@@ -156,17 +179,25 @@ export default function PropertyDetails() {
           <div className="mb-8">
             <Carousel className="w-full">
               <CarouselContent>
-                {property.imageUrls.map((imageUrl, index) => (
-                  <CarouselItem key={index}>
-                    <div className="relative aspect-[16/9] w-full overflow-hidden rounded-lg">
-                      <img 
-                        src={imageUrl} 
-                        alt={`${property.title} - Image ${index + 1}`} 
-                        className="w-full h-full object-cover"
-                      />
+                {property.imageUrls && property.imageUrls.length > 0 ? (
+                  property.imageUrls.map((imageUrl, index) => (
+                    <CarouselItem key={index}>
+                      <div className="relative aspect-[16/9] w-full overflow-hidden rounded-lg">
+                        <img 
+                          src={imageUrl} 
+                          alt={`${property.title} - Image ${index + 1}`} 
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                    </CarouselItem>
+                  ))
+                ) : (
+                  <CarouselItem>
+                    <div className="relative aspect-[16/9] w-full overflow-hidden rounded-lg bg-gray-200 flex items-center justify-center">
+                      <p className="text-gray-500">No images available</p>
                     </div>
                   </CarouselItem>
-                ))}
+                )}
               </CarouselContent>
               <div className="absolute inset-0 flex items-center justify-between p-4 pointer-events-none">
                 <CarouselPrevious className="pointer-events-auto" />
@@ -185,27 +216,27 @@ export default function PropertyDetails() {
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
                   <div className="flex flex-col items-center justify-center bg-gray-50 rounded-lg p-4">
                     <Bed className="h-8 w-8 text-primary mb-2" />
-                    <span className="text-2xl font-bold">{property.bedrooms}</span>
+                    <span className="text-2xl font-bold">{property.bedrooms || 'N/A'}</span>
                     <span className="text-gray-600 text-sm">Bedrooms</span>
                   </div>
                   <div className="flex flex-col items-center justify-center bg-gray-50 rounded-lg p-4">
                     <Bath className="h-8 w-8 text-primary mb-2" />
-                    <span className="text-2xl font-bold">{property.bathrooms}</span>
+                    <span className="text-2xl font-bold">{property.bathrooms || 'N/A'}</span>
                     <span className="text-gray-600 text-sm">Bathrooms</span>
                   </div>
                   <div className="flex flex-col items-center justify-center bg-gray-50 rounded-lg p-4">
                     <Ruler className="h-8 w-8 text-primary mb-2" />
-                    <span className="text-2xl font-bold">{property.area.toLocaleString()}</span>
+                    <span className="text-2xl font-bold">{property.area ? property.area.toLocaleString() : 'N/A'}</span>
                     <span className="text-gray-600 text-sm">Square Feet</span>
                   </div>
                   <div className="flex flex-col items-center justify-center bg-gray-50 rounded-lg p-4">
                     <Home className="h-8 w-8 text-primary mb-2" />
-                    <span className="text-lg font-bold">{property.propertyType}</span>
+                    <span className="text-lg font-bold">{property.propertyType || 'Land'}</span>
                     <span className="text-gray-600 text-sm">Property Type</span>
                   </div>
                 </div>
                 <div className="prose max-w-none">
-                  <p>{property.description}</p>
+                  <p>{property.description || 'Property description not available.'}</p>
                 </div>
               </div>
               
@@ -223,10 +254,10 @@ export default function PropertyDetails() {
                   <TabsContent value="address" className="p-6">
                     <h3 className="text-xl font-bold mb-4">Property Address</h3>
                     <p className="mb-2">
-                      <span className="font-medium">Full Address:</span> {property.address}
+                      <span className="font-medium">Full Address:</span> {property.address || 'Address not available'}
                     </p>
                     <p className="mb-2">
-                      <span className="font-medium">Location:</span> {property.location}
+                      <span className="font-medium">Location:</span> {property.location || 'Location not available'}
                     </p>
                   </TabsContent>
                   <TabsContent value="map" className="p-6">
@@ -239,15 +270,15 @@ export default function PropertyDetails() {
                             height: '100%',
                           }}
                           center={{
-                            lat: property.latitude,
-                            lng: property.longitude
+                            lat: property.latitude || defaultCenter.lat,
+                            lng: property.longitude || defaultCenter.lng
                           }}
                           zoom={15}
                         >
                           <Marker
                             position={{
-                              lat: property.latitude,
-                              lng: property.longitude
+                              lat: property.latitude || defaultCenter.lat,
+                              lng: property.longitude || defaultCenter.lng
                             }}
                           />
                         </GoogleMap>

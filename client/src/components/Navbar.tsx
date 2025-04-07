@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Menu, X, Home, Building, Newspaper, Lock } from "lucide-react";
+import { AspectRatio } from "@/components/ui/aspect-ratio";
 
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -38,6 +39,15 @@ export default function Navbar() {
           {/* Logo */}
           <div className="flex items-center">
             <Link href="/" className="flex items-center">
+              <div className="w-10 h-10 mr-2">
+                <AspectRatio ratio={1}>
+                  <img 
+                    src="/WhatsApp_Image_2025-03-28_at_2.02.20_PM-removebg-preview-2.png" 
+                    alt="NainaLand Logo" 
+                    className="object-contain"
+                  />
+                </AspectRatio>
+              </div>
               <span className="text-primary text-2xl font-display font-bold">Naina<span className="text-red-600">Land</span></span>
             </Link>
           </div>
