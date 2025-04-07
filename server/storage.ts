@@ -457,14 +457,20 @@ By implementing these staging strategies, you can significantly increase your pr
   async createProperty(insertProperty: InsertProperty): Promise<Property> {
     const id = this.propertyCurrentId++;
     const createdAt = new Date().toISOString();
+    
+    // Normalize youtubeUrl: convert undefined to null
+    const youtubeUrl = insertProperty.youtubeUrl || null;
+    
     // Ensure forSale and featured are set with default values if not provided
     const property: Property = { 
       ...insertProperty, 
       id, 
       createdAt, 
       forSale: insertProperty.forSale ?? true,
-      featured: insertProperty.featured ?? false
+      featured: insertProperty.featured ?? false,
+      youtubeUrl
     };
+    
     this.properties.set(id, property);
     return property;
   }

@@ -48,7 +48,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  // Setup auth status query
+  // Setup auth status query with cache busting timestamp
   const {
     data: authData,
     isLoading,
@@ -56,11 +56,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     queryKey: ["auth", "status"],
     queryFn: async () => {
       try {
-        return await apiRequest<AuthStatusResponse>("/api/auth/status");
+        // Add cache-busting timestamp to avoid browser caching
+        const timestamp = new Date().getTime();
+        return await apiRequest<AuthStatusResponse>(`/api/auth/status?_=${timestamp}`);
       } catch (error) {
+        console.error("Auth status error:", error);
         return { success: true, authenticated: false };
       }
     },
+    refetchInterval: 5000, // Poll every 5 seconds to ensure session state is current
   });
 
   const isAuthenticated = authData?.authenticated || false;
@@ -82,6 +86,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           body: JSON.stringify(credentials),
         });
       } catch (error: any) {
+        console.error("Login error:", error);
         if (error.status === 401) {
           return { success: false, message: "Invalid username or password" };
         }

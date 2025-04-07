@@ -40,23 +40,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Setup session store
   const MemorySessionStore = MemoryStore(session);
   
+  // Set trust proxy BEFORE configuring session
+  app.set('trust proxy', 1);
+  
   // Configure session middleware
   app.use(session({
     secret: process.env.SESSION_SECRET || 'nainaland-session-secret',
-    resave: false,
-    saveUninitialized: false,
+    resave: true, // Changed from false to true to ensure session is saved
+    saveUninitialized: true, // Changed from false to true
     cookie: { 
       secure: false, // Set to false for development
       httpOnly: true,
-      maxAge: 24 * 60 * 60 * 1000 // 1 day
+      maxAge: 24 * 60 * 60 * 1000, // 1 day
+      sameSite: 'lax' // Added to help with cross-site requests
     },
     store: new MemorySessionStore({
       checkPeriod: 86400000 // prune expired entries every 24h
     })
   }));
-  
-  // Trust first proxy
-  app.set('trust proxy', 1);
   
   // Initialize passport
   app.use(passport.initialize());

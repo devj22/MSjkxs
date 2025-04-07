@@ -77,7 +77,7 @@ const basePropertySchema = createInsertSchema(propertyListings).pick({
 export const insertPropertySchema = basePropertySchema.extend({
   bedrooms: z.number().default(0),
   bathrooms: z.number().default(0),
-  youtubeUrl: z.string().optional(),
+  youtubeUrl: z.string().nullish(), // Allow null or undefined values
 });
 
 // Blog/News post schema
