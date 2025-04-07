@@ -291,44 +291,18 @@ export default function PropertyDetails() {
                   </TabsContent>
                   <TabsContent value="features" className="p-6">
                     <h3 className="text-xl font-bold mb-4">Property Features</h3>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="flex items-start">
-                        <div className="h-5 w-5 rounded-full bg-primary flex items-center justify-center text-white mr-2">
-                          ✓
-                        </div>
-                        <span>Air Conditioning</span>
-                      </div>
-                      <div className="flex items-start">
-                        <div className="h-5 w-5 rounded-full bg-primary flex items-center justify-center text-white mr-2">
-                          ✓
-                        </div>
-                        <span>Heating System</span>
-                      </div>
-                      <div className="flex items-start">
-                        <div className="h-5 w-5 rounded-full bg-primary flex items-center justify-center text-white mr-2">
-                          ✓
-                        </div>
-                        <span>Parking</span>
-                      </div>
-                      <div className="flex items-start">
-                        <div className="h-5 w-5 rounded-full bg-primary flex items-center justify-center text-white mr-2">
-                          ✓
-                        </div>
-                        <span>Garden</span>
-                      </div>
-                      <div className="flex items-start">
-                        <div className="h-5 w-5 rounded-full bg-primary flex items-center justify-center text-white mr-2">
-                          ✓
-                        </div>
-                        <span>Security System</span>
-                      </div>
-                      <div className="flex items-start">
-                        <div className="h-5 w-5 rounded-full bg-primary flex items-center justify-center text-white mr-2">
-                          ✓
-                        </div>
-                        <span>High-Speed Internet</span>
-                      </div>
-                    </div>
+                    <ul className="grid grid-cols-1 md:grid-cols-2 gap-2 list-disc pl-5">
+                      <li>Water Connection</li>
+                      <li>Electricity Available</li>
+                      <li>Road Access</li>
+                      <li>Clear Title</li>
+                      <li>Boundary Wall</li>
+                      <li>Corner Plot</li>
+                      <li>Near Highways</li>
+                      <li>Residential Zone</li>
+                      <li>Development Permission</li>
+                      <li>Schools Nearby</li>
+                    </ul>
                   </TabsContent>
                   
                   {property.youtubeUrl && (
