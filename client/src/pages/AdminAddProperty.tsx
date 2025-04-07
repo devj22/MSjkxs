@@ -34,6 +34,7 @@ export default function AdminAddProperty() {
   const [latitude, setLatitude] = useState<number>(40.7128);
   const [longitude, setLongitude] = useState<number>(-74.0060);
   const [imageUrls, setImageUrls] = useState<string[]>([""]);
+  const [youtubeUrl, setYoutubeUrl] = useState("");
   
   // Handle image URL changes
   const handleImageUrlChange = (index: number, value: string) => {
@@ -170,6 +171,7 @@ export default function AdminAddProperty() {
       latitude,
       longitude,
       imageUrls: filteredImageUrls,
+      youtubeUrl: youtubeUrl.trim() || undefined, // Only include if not empty
     };
     
     console.log("Submitting property data:", propertyData);
@@ -366,51 +368,70 @@ export default function AdminAddProperty() {
                 </div>
               </div>
               
-              {/* Images */}
+              {/* Media */}
               <div className="space-y-4">
-                <div className="flex justify-between items-center">
-                  <h2 className="text-xl font-bold">Property Images</h2>
-                  <Button 
-                    type="button" 
-                    variant="outline" 
-                    size="sm"
-                    onClick={addImageUrl}
-                  >
-                    <Plus className="mr-2 h-4 w-4" />
-                    Add Image
-                  </Button>
+                <h2 className="text-xl font-bold">Property Media</h2>
+                
+                {/* YouTube Video URL */}
+                <div>
+                  <Label htmlFor="youtubeUrl" className="mb-2 block">YouTube Video URL <span className="text-sm text-gray-500">(optional)</span></Label>
+                  <Input
+                    id="youtubeUrl"
+                    placeholder="e.g., https://www.youtube.com/watch?v=AbCdEfGhIjk"
+                    value={youtubeUrl}
+                    onChange={(e) => setYoutubeUrl(e.target.value)}
+                  />
+                  <p className="text-sm text-gray-500 mt-1">
+                    Add a YouTube video URL to showcase your property. The link will be displayed, not embedded.
+                  </p>
                 </div>
                 
-                {imageUrls.map((url, index) => (
-                  <div key={index} className="flex items-center gap-2">
-                    <div className="flex-grow">
-                      <Label htmlFor={`image-${index}`} className="mb-2 block">
-                        Image URL {index + 1}{index === 0 ? '*' : ''}
-                      </Label>
-                      <Input
-                        id={`image-${index}`}
-                        placeholder="https://example.com/image.jpg"
-                        value={url}
-                        onChange={(e) => handleImageUrlChange(index, e.target.value)}
-                        required={index === 0}
-                      />
-                    </div>
-                    {index > 0 && (
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon"
-                        className="self-end mb-0.5 text-gray-500 hover:text-red-500"
-                        onClick={() => removeImageUrl(index)}
-                      >
-                        <X className="h-5 w-5" />
-                      </Button>
-                    )}
+                {/* Images */}
+                <div className="pt-4">
+                  <div className="flex justify-between items-center mb-4">
+                    <h3 className="text-lg font-semibold">Property Images</h3>
+                    <Button 
+                      type="button" 
+                      variant="outline" 
+                      size="sm"
+                      onClick={addImageUrl}
+                    >
+                      <Plus className="mr-2 h-4 w-4" />
+                      Add Image
+                    </Button>
                   </div>
-                ))}
-                <p className="text-sm text-gray-500">
-                  * At least one image URL is required. Add multiple images for better presentation.
-                </p>
+                  
+                  {imageUrls.map((url, index) => (
+                    <div key={index} className="flex items-center gap-2 mb-3">
+                      <div className="flex-grow">
+                        <Label htmlFor={`image-${index}`} className="mb-2 block">
+                          Image URL {index + 1}{index === 0 ? '*' : ''}
+                        </Label>
+                        <Input
+                          id={`image-${index}`}
+                          placeholder="https://example.com/image.jpg"
+                          value={url}
+                          onChange={(e) => handleImageUrlChange(index, e.target.value)}
+                          required={index === 0}
+                        />
+                      </div>
+                      {index > 0 && (
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          className="self-end mb-0.5 text-gray-500 hover:text-red-500"
+                          onClick={() => removeImageUrl(index)}
+                        >
+                          <X className="h-5 w-5" />
+                        </Button>
+                      )}
+                    </div>
+                  ))}
+                  <p className="text-sm text-gray-500">
+                    * At least one image URL is required. Add multiple images for better presentation.
+                  </p>
+                </div>
               </div>
               
               <div className="pt-4 border-t border-gray-200 flex justify-end">

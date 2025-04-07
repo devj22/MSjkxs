@@ -49,6 +49,7 @@ export const propertyListings = pgTable("property_listings", {
   latitude: doublePrecision("latitude").notNull(),
   longitude: doublePrecision("longitude").notNull(),
   imageUrls: text("image_urls").array().notNull(),
+  youtubeUrl: text("youtube_url"),
   createdAt: text("created_at").notNull().default(new Date().toISOString()),
 });
 
@@ -68,12 +69,15 @@ const basePropertySchema = createInsertSchema(propertyListings).pick({
   latitude: true,
   longitude: true,
   imageUrls: true,
+  youtubeUrl: true,
 });
 
 // Extend it with Zod to make bedrooms and bathrooms optional with default values
+// and youtubeUrl optional
 export const insertPropertySchema = basePropertySchema.extend({
   bedrooms: z.number().default(0),
   bathrooms: z.number().default(0),
+  youtubeUrl: z.string().optional(),
 });
 
 // Blog/News post schema

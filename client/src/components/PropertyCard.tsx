@@ -1,8 +1,9 @@
 import { Link } from "wouter";
 import { Property } from "@shared/schema";
-import { Bed, Bath, Ruler, MapPin } from "lucide-react";
+import { Bed, Bath, Ruler, MapPin, Youtube } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface PropertyCardProps {
   property: Property;
@@ -34,6 +35,22 @@ export default function PropertyCard({ property }: PropertyCardProps) {
           <Badge className="absolute top-2 right-2 bg-blue-600 hover:bg-blue-700">
             {property.forSale ? 'For Sale' : 'For Rent'}
           </Badge>
+          {property.youtubeUrl && (
+            <div className="absolute bottom-2 right-2">
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div className="bg-red-600 text-white p-1.5 rounded-full">
+                      <Youtube className="h-4 w-4" />
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Video tour available</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
+          )}
         </div>
       </Link>
       

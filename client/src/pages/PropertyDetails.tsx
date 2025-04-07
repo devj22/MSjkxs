@@ -212,10 +212,13 @@ export default function PropertyDetails() {
               {/* Tabs for Additional Information */}
               <div className="bg-white rounded-lg shadow-sm">
                 <Tabs defaultValue="address">
-                  <TabsList className="w-full grid grid-cols-3">
+                  <TabsList className="w-full grid grid-cols-4">
                     <TabsTrigger value="address">Address</TabsTrigger>
                     <TabsTrigger value="map" onClick={handleMapTabSelect}>Map</TabsTrigger>
                     <TabsTrigger value="features">Features</TabsTrigger>
+                    {property.youtubeUrl && (
+                      <TabsTrigger value="video">Video</TabsTrigger>
+                    )}
                   </TabsList>
                   <TabsContent value="address" className="p-6">
                     <h3 className="text-xl font-bold mb-4">Property Address</h3>
@@ -296,6 +299,35 @@ export default function PropertyDetails() {
                       </div>
                     </div>
                   </TabsContent>
+                  
+                  {property.youtubeUrl && (
+                    <TabsContent value="video" className="p-6">
+                      <h3 className="text-xl font-bold mb-4">Property Video</h3>
+                      <div className="mb-4">
+                        <p className="text-gray-600 mb-4">
+                          Click the link below to view a video tour of this property:
+                        </p>
+                        <a 
+                          href={property.youtubeUrl} 
+                          target="_blank" 
+                          rel="noopener noreferrer" 
+                          className="inline-flex items-center px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-md transition-colors"
+                        >
+                          <div className="flex items-center">
+                            <svg viewBox="0 0 24 24" className="h-5 w-5 mr-2" fill="currentColor">
+                              <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
+                            </svg>
+                            Watch Video on YouTube
+                          </div>
+                        </a>
+                      </div>
+                      <div className="bg-gray-100 p-4 rounded-md mt-4">
+                        <p className="text-sm text-gray-600">
+                          <span className="font-medium">Note:</span> This link will open YouTube in a new tab. The video showcases the property features and surrounding area.
+                        </p>
+                      </div>
+                    </TabsContent>
+                  )}
                 </Tabs>
               </div>
             </div>

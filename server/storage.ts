@@ -145,7 +145,8 @@ export class MemStorage implements IStorage {
         longitude: -96.4369,
         imageUrls: [
           "https://images.unsplash.com/photo-1580587771525-78b9dba3b914?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1374&q=80"
-        ]
+        ],
+        youtubeUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
       },
       {
         title: "Luxury Penthouse Apartment",
@@ -164,6 +165,25 @@ export class MemStorage implements IStorage {
         imageUrls: [
           "https://images.unsplash.com/photo-1493809842364-78817add7ffb?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80"
         ]
+      },
+      {
+        title: "Modern Land Development Opportunity",
+        description: "Premium land plot ready for development in a fast-growing area. Utilities in place and zoning permits for residential or mixed-use.",
+        price: 425000,
+        location: "Frisco",
+        address: "789 Growth Avenue, Frisco, TX 75034",
+        bedrooms: 0,
+        bathrooms: 0,
+        area: 12000,
+        propertyType: "Land",
+        forSale: true,
+        featured: false,
+        latitude: 33.1507,
+        longitude: -96.8236,
+        imageUrls: [
+          "https://images.unsplash.com/photo-1500382017468-9049fed747ef?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1332&q=80"
+        ],
+        youtubeUrl: "https://www.youtube.com/watch?v=A1YIqVvM_wQ"
       }
     ];
 
