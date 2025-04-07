@@ -213,30 +213,36 @@ export default function PropertyDetails() {
               {/* Property Features */}
               <div className="bg-white rounded-lg shadow-sm p-6">
                 <h2 className="text-2xl font-bold mb-6">Property Details</h2>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-                  <div className="flex flex-col items-center justify-center bg-gray-50 rounded-lg p-4">
-                    <Bed className="h-8 w-8 text-primary mb-2" />
-                    <span className="text-2xl font-bold">{property.bedrooms || 'N/A'}</span>
-                    <span className="text-gray-600 text-sm">Bedrooms</span>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                  <div>
+                    <h3 className="font-semibold text-lg mb-3 text-primary">Basic Information</h3>
+                    <ul className="list-disc pl-5 space-y-2">
+                      <li><span className="font-medium">Property Type:</span> {property.propertyType || 'Land'}</li>
+                      <li><span className="font-medium">Area:</span> {property.area ? `${property.area.toLocaleString()} sq.ft.` : 'Area not specified'}</li>
+                      <li><span className="font-medium">Price:</span> {formatPrice(property.price)}</li>
+                      <li><span className="font-medium">Location:</span> {property.location || 'Location not specified'}</li>
+                      <li><span className="font-medium">Sale Type:</span> {property.forSale ? 'For Sale' : 'For Rent'}</li>
+                    </ul>
                   </div>
-                  <div className="flex flex-col items-center justify-center bg-gray-50 rounded-lg p-4">
-                    <Bath className="h-8 w-8 text-primary mb-2" />
-                    <span className="text-2xl font-bold">{property.bathrooms || 'N/A'}</span>
-                    <span className="text-gray-600 text-sm">Bathrooms</span>
-                  </div>
-                  <div className="flex flex-col items-center justify-center bg-gray-50 rounded-lg p-4">
-                    <Ruler className="h-8 w-8 text-primary mb-2" />
-                    <span className="text-2xl font-bold">{property.area ? property.area.toLocaleString() : 'N/A'}</span>
-                    <span className="text-gray-600 text-sm">Square Feet</span>
-                  </div>
-                  <div className="flex flex-col items-center justify-center bg-gray-50 rounded-lg p-4">
-                    <Home className="h-8 w-8 text-primary mb-2" />
-                    <span className="text-lg font-bold">{property.propertyType || 'Land'}</span>
-                    <span className="text-gray-600 text-sm">Property Type</span>
+                  
+                  <div>
+                    <h3 className="font-semibold text-lg mb-3 text-primary">Land Features</h3>
+                    <ul className="list-disc pl-5 space-y-2">
+                      <li><span className="font-medium">Plot Size:</span> {property.area ? `${property.area.toLocaleString()} sq.ft.` : 'Not specified'}</li>
+                      <li><span className="font-medium">Dimensions:</span> Regular</li>
+                      <li><span className="font-medium">Zoning:</span> Residential</li>
+                      <li><span className="font-medium">Topography:</span> Flat</li>
+                      <li><span className="font-medium">Water Source:</span> Available</li>
+                    </ul>
                   </div>
                 </div>
-                <div className="prose max-w-none">
-                  <p>{property.description || 'Property description not available.'}</p>
+                
+                <div className="mt-6">
+                  <h3 className="font-semibold text-lg mb-3 text-primary">Description</h3>
+                  <div className="prose max-w-none">
+                    <p>{property.description || 'Property description not available.'}</p>
+                  </div>
                 </div>
               </div>
               
