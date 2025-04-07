@@ -10,6 +10,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 
+// Define interfaces for API responses
 interface AuthStatusResponse {
   success: boolean;
   authenticated: boolean;
@@ -26,6 +27,7 @@ interface LoginResponse {
     id: number;
     username: string;
   };
+  token?: string;
 }
 
 type User = {
@@ -41,30 +43,61 @@ type AuthContextType = {
   logout: () => Promise<void>;
 };
 
+// Create a context for authentication
 const AuthContext = createContext<AuthContextType | null>(null);
+
+// Local token storage for the token-based auth
+const getAuthToken = () => {
+  return localStorage.getItem('auth_token');
+};
+
+const setAuthToken = (token: string) => {
+  localStorage.setItem('auth_token', token);
+};
+
+const clearAuthToken = () => {
+  localStorage.removeItem('auth_token');
+};
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [, navigate] = useLocation();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  
+  // Store the auth token in state for reactivity
+  const [authToken, setToken] = useState<string | null>(getAuthToken());
 
-  // Setup auth status query with cache busting timestamp
+  // Setup auth status query
   const {
     data: authData,
     isLoading,
+    refetch: refetchAuthStatus
   } = useQuery<AuthStatusResponse>({
     queryKey: ["auth", "status"],
     queryFn: async () => {
       try {
-        // Add cache-busting timestamp to avoid browser caching
+        // Add cache-busting timestamp
         const timestamp = new Date().getTime();
-        return await apiRequest<AuthStatusResponse>(`/api/auth/status?_=${timestamp}`);
+        const token = getAuthToken();
+        
+        const headers: Record<string, string> = {};
+        if (token) {
+          headers['Authorization'] = `Bearer ${token}`;
+        }
+        
+        return await apiRequest<AuthStatusResponse>(
+          `/api/auth/status?_=${timestamp}`,
+          { headers }
+        );
       } catch (error) {
         console.error("Auth status error:", error);
         return { success: true, authenticated: false };
       }
     },
-    refetchInterval: 5000, // Poll every 5 seconds to ensure session state is current
+    // More aggressive refetching to ensure token state is current
+    refetchInterval: 10000,
+    refetchOnWindowFocus: true,
+    staleTime: 5000,
   });
 
   const isAuthenticated = authData?.authenticated || false;
@@ -78,13 +111,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   >({
     mutationFn: async (credentials) => {
       try {
-        return await apiRequest<LoginResponse>("/api/auth/login", {
+        const response = await apiRequest<LoginResponse>("/api/auth/login", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
           body: JSON.stringify(credentials),
         });
+        
+        // Store the token in localStorage if provided
+        if (response.success && response.token) {
+          setAuthToken(response.token);
+          setToken(response.token);
+        }
+        
+        return response;
       } catch (error: any) {
         console.error("Login error:", error);
         if (error.status === 401) {
@@ -98,9 +139,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // Logout mutation
   const logoutMutation = useMutation<{success: boolean; message?: string}, Error>({
     mutationFn: async () => {
-      return await apiRequest("/api/auth/logout", {
+      const token = getAuthToken();
+      const headers: Record<string, string> = {};
+      
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+      
+      const response = await apiRequest("/api/auth/logout", {
         method: "POST",
+        headers
       });
+      
+      // Clear the token on successful logout
+      clearAuthToken();
+      setToken(null);
+      
+      return response;
     },
   });
 
@@ -110,8 +165,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const result = await loginMutation.mutateAsync({ username, password });
       
       if (result.success) {
-        // Invalidate auth status query to fetch new state
-        queryClient.invalidateQueries({ queryKey: ["auth", "status"] });
+        // Refresh auth status
+        await refetchAuthStatus();
+        
         toast({
           title: "Login Successful",
           description: "Welcome to the admin dashboard.",
@@ -126,6 +182,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return false;
       }
     } catch (error) {
+      console.error("Login error:", error);
       toast({
         title: "Login Error",
         description: "An error occurred. Please try again later.",
@@ -139,14 +196,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const logout = async (): Promise<void> => {
     try {
       await logoutMutation.mutateAsync();
-      // Invalidate auth status query to fetch new state
-      queryClient.invalidateQueries({ queryKey: ["auth", "status"] });
+      // Refresh auth status
+      await refetchAuthStatus();
+      
       toast({
         title: "Logged Out",
         description: "You have been successfully logged out.",
       });
       navigate("/admin/login");
     } catch (error) {
+      console.error("Logout error:", error);
       toast({
         title: "Logout Error",
         description: "An error occurred during logout. Please try again.",

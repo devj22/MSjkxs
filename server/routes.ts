@@ -8,162 +8,160 @@ import {
 } from "@shared/schema";
 import { ZodError, z } from "zod";
 import { fromZodError } from "zod-validation-error";
-import passport from "passport";
-import { Strategy as LocalStrategy } from "passport-local";
-import session from "express-session";
-import MemoryStore from "memorystore";
+import cookieParser from "cookie-parser";
+
+// Simplified authentication system without Passport
+// In-memory token store for active sessions
+const activeTokens = new Map<string, number>(); // token -> userId
 
 // Create an authenticated middleware to protect admin routes
 const isAuthenticated = (req: Request, res: Response, next: NextFunction) => {
-  // Log authentication status for debugging
-  console.log('Auth check - Session ID:', req.sessionID);
-  console.log('Auth check - Is authenticated:', req.isAuthenticated());
-  if (req.user) {
-    console.log('Auth check - User:', req.user);
-  } else {
-    console.log('Auth check - No user in request');
+  const authToken = req.headers.authorization?.split(' ')[1] || req.cookies?.auth_token;
+  
+  console.log('Auth check - Token:', authToken);
+  
+  if (!authToken || !activeTokens.has(authToken)) {
+    console.log('Auth check - Invalid or missing token');
+    return res.status(401).json({
+      success: false,
+      message: "Unauthorized access. Please login first."
+    });
   }
   
-  if (req.isAuthenticated()) {
-    console.log('Auth check - Access granted');
-    return next();
-  }
+  // Get user ID from token
+  const userId = activeTokens.get(authToken)!;
   
-  console.log('Auth check - Access denied');
-  return res.status(401).json({
-    success: false,
-    message: "Unauthorized access. Please login first."
-  });
+  // Attach user to request for convenience
+  (req as any).userId = userId;
+  console.log('Auth check - Access granted for user ID:', userId);
+  next();
+};
+
+// Function to generate a random token
+const generateToken = () => {
+  return Math.random().toString(36).substring(2, 15) + 
+         Math.random().toString(36).substring(2, 15);
 };
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Setup session store
-  const MemorySessionStore = MemoryStore(session);
+  // Simple cookie middleware
+  app.use(cookieParser());
   
-  // Set trust proxy BEFORE configuring session
+  // Set trust proxy
   app.set('trust proxy', 1);
   
-  // Configure session middleware
-  app.use(session({
-    secret: process.env.SESSION_SECRET || 'nainaland-session-secret',
-    resave: true, // Changed from false to true to ensure session is saved
-    saveUninitialized: true, // Changed from false to true
-    cookie: { 
-      secure: false, // Set to false for development
-      httpOnly: true,
-      maxAge: 24 * 60 * 60 * 1000, // 1 day
-      sameSite: 'lax' // Added to help with cross-site requests
-    },
-    store: new MemorySessionStore({
-      checkPeriod: 86400000 // prune expired entries every 24h
-    })
-  }));
-  
-  // Initialize passport
-  app.use(passport.initialize());
-  app.use(passport.session());
-  
-  // Configure passport to use local strategy
-  passport.use(new LocalStrategy(
-    async (username, password, done) => {
-      try {
-        const user = await storage.getUserByUsername(username);
-        
-        if (!user) {
-          return done(null, false, { message: 'Incorrect username.' });
-        }
-        
-        // In a real application, you would use bcrypt to compare hashed passwords
-        // This is simplified for the demo
-        if (password !== user.password) {
-          return done(null, false, { message: 'Incorrect password.' });
-        }
-        
-        return done(null, user);
-      } catch (error) {
-        return done(error);
-      }
-    }
-  ));
-  
-  // Serialize user to the session
-  passport.serializeUser((user: any, done) => {
-    done(null, user.id);
-  });
-  
-  // Deserialize user from the session
-  passport.deserializeUser(async (id: number, done) => {
-    try {
-      const user = await storage.getUser(id);
-      done(null, user);
-    } catch (error) {
-      done(error);
-    }
-  });
-  
   // Authentication routes
-  app.post('/api/auth/login', (req, res, next) => {
+  app.post('/api/auth/login', async (req, res) => {
     console.log('Login attempt:', req.body.username);
     
-    passport.authenticate('local', (err: any, user: any, info: any) => {
-      if (err) {
-        console.error('Login error:', err);
-        return res.status(500).json({
+    try {
+      const { username, password } = req.body;
+      
+      if (!username || !password) {
+        return res.status(400).json({
           success: false,
-          message: 'Internal server error during authentication'
+          message: 'Username and password are required'
         });
       }
+      
+      // Authenticate user
+      const user = await storage.getUserByUsername(username);
       
       if (!user) {
-        console.log('Login failed:', info?.message);
+        console.log('Login failed: User not found');
         return res.status(401).json({
           success: false,
-          message: info?.message || 'Invalid username or password'
+          message: 'Invalid username or password'
         });
       }
       
-      // Manual login using req.login
-      req.login(user, (loginErr) => {
-        if (loginErr) {
-          console.error('Session save error:', loginErr);
-          return res.status(500).json({
-            success: false,
-            message: 'Error saving session'
+      // Simple password check - in a real app, use proper password hashing
+      if (password !== user.password) {
+        console.log('Login failed: Incorrect password');
+        return res.status(401).json({
+          success: false,
+          message: 'Invalid username or password'
+        });
+      }
+      
+      // Generate a token
+      const token = generateToken();
+      
+      // Store token in memory
+      activeTokens.set(token, user.id);
+      
+      // Set cookie
+      res.cookie('auth_token', token, {
+        httpOnly: true,
+        maxAge: 24 * 60 * 60 * 1000, // 1 day
+        sameSite: 'lax',
+        secure: false // Set to true in production with HTTPS
+      });
+      
+      console.log('Login successful, token created for user:', user.id);
+      console.log('Active tokens:', Array.from(activeTokens.entries()));
+      
+      // Return success with user info
+      return res.json({
+        success: true,
+        message: 'Authentication successful',
+        user: {
+          id: user.id,
+          username: user.username
+        },
+        token
+      });
+    } catch (error) {
+      console.error('Login error:', error);
+      return res.status(500).json({
+        success: false,
+        message: 'Internal server error during authentication'
+      });
+    }
+  });
+  
+  app.get('/api/auth/status', (req, res) => {
+    const authToken = req.headers.authorization?.split(' ')[1] || req.cookies?.auth_token;
+    
+    console.log('Auth status check. Token:', authToken);
+    console.log('Active tokens:', Array.from(activeTokens.entries()));
+    
+    if (authToken && activeTokens.has(authToken)) {
+      const userId = activeTokens.get(authToken)!;
+      
+      // Get user info to return
+      storage.getUser(userId).then(user => {
+        if (!user) {
+          // This should not happen, but just in case
+          console.log('User not found for token, clearing token');
+          activeTokens.delete(authToken);
+          res.clearCookie('auth_token');
+          
+          return res.json({
+            success: true,
+            authenticated: false
           });
         }
         
-        console.log('Login successful, session saved for user:', user.id);
+        console.log('User authenticated:', user.username);
         
-        // Return success with user info
-        return res.json({
+        res.json({
           success: true,
-          message: 'Authentication successful',
+          authenticated: true,
           user: {
             id: user.id,
             username: user.username
           }
         });
-      });
-    })(req, res, next);
-  });
-  
-  app.get('/api/auth/status', (req, res) => {
-    console.log('Auth status check. Session ID:', req.sessionID);
-    console.log('Is authenticated:', req.isAuthenticated());
-    
-    if (req.isAuthenticated()) {
-      console.log('User from session:', req.user);
-      res.json({
-        success: true,
-        authenticated: true,
-        user: {
-          id: (req.user as any).id,
-          username: (req.user as any).username,
-          // Don't include password in response
-        }
+      }).catch(error => {
+        console.error('Error fetching user:', error);
+        res.status(500).json({
+          success: false,
+          message: 'Error fetching user information'
+        });
       });
     } else {
-      console.log('No authenticated user found in session');
+      console.log('No valid token found');
       res.json({
         success: true,
         authenticated: false
@@ -172,19 +170,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
   
   app.post('/api/auth/logout', (req, res) => {
-    req.logout((err) => {
-      if (err) {
-        return res.status(500).json({
-          success: false,
-          message: 'Error logging out',
-          error: err.message
-        });
-      }
-      
-      res.json({
-        success: true,
-        message: 'Logged out successfully'
-      });
+    const authToken = req.headers.authorization?.split(' ')[1] || req.cookies?.auth_token;
+    
+    if (authToken) {
+      // Remove token from active tokens
+      activeTokens.delete(authToken);
+    }
+    
+    // Clear cookie
+    res.clearCookie('auth_token');
+    
+    console.log('Logout successful');
+    
+    res.json({
+      success: true,
+      message: 'Logged out successfully'
     });
   });
   

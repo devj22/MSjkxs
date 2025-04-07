@@ -23,8 +23,20 @@ export async function apiRequest<T = any>(
     fetchOptions = urlOrOptions;
   }
 
-  // Ensure content-type is set for JSON requests if the body is a string that can be parsed as JSON
-  let headers = { ...fetchOptions.headers };
+  // Get auth token from localStorage if available
+  const token = localStorage.getItem('auth_token');
+  
+  // Prepare headers with token if available
+  let headers: Record<string, string> = { 
+    ...(fetchOptions.headers as Record<string, string> || {}) 
+  };
+  
+  // Add Authorization header if token exists
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+  
+  // Ensure content-type is set for JSON requests if the body is a string
   if (
     typeof fetchOptions.body === 'string' && 
     !headers['Content-Type'] && 
@@ -41,15 +53,19 @@ export async function apiRequest<T = any>(
   const res = await fetch(url, {
     ...fetchOptions,
     headers,
-    credentials: "include",
+    credentials: "include", // Keep including cookies for cookie-based auth backup
   });
 
   if (!res.ok) {
     if (res.status === 401) {
+      // Clear token on unauthorized responses
+      localStorage.removeItem('auth_token');
+      
       const error: any = new Error("Unauthorized");
       error.status = 401;
       throw error;
     }
+    
     const text = await res.text();
     const error: any = new Error(text || res.statusText);
     error.status = res.status;
@@ -71,11 +87,23 @@ export const getQueryFn: <T>(options: {
 }) => QueryFunction<T> =
   ({ on401: unauthorizedBehavior }) =>
   async ({ queryKey }) => {
+    // Get auth token from localStorage if available
+    const token = localStorage.getItem('auth_token');
+    
+    // Set up headers with token if available
+    const headers: Record<string, string> = {};
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+    
     const res = await fetch(queryKey[0] as string, {
-      credentials: "include",
+      credentials: "include", // Keep including cookies for cookie-based auth backup
+      headers
     });
 
     if (unauthorizedBehavior === "returnNull" && res.status === 401) {
+      // Clear token on unauthorized if it exists
+      if (token) localStorage.removeItem('auth_token');
       return null;
     }
 
