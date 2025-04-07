@@ -61,10 +61,13 @@ export default function PropertyDetails() {
 
   const property: Property | undefined = propertyData?.data;
   
-  const formatPrice = (price: number) => {
+  const formatPrice = (price?: number) => {
+    if (price === undefined || price === null) {
+      return "Price on request";
+    }
     return price.toLocaleString('en-US', {
       style: 'currency',
-      currency: 'USD',
+      currency: 'INR',
       maximumFractionDigits: 0,
     });
   };
@@ -156,7 +159,7 @@ export default function PropertyDetails() {
           <div className="mb-8">
             <Carousel className="w-full">
               <CarouselContent>
-                {property.imageUrls.map((imageUrl, index) => (
+                {property.imageUrls && property.imageUrls.map((imageUrl, index) => (
                   <CarouselItem key={index}>
                     <div className="relative aspect-[16/9] w-full overflow-hidden rounded-lg">
                       <img 
@@ -167,6 +170,13 @@ export default function PropertyDetails() {
                     </div>
                   </CarouselItem>
                 ))}
+                {(!property.imageUrls || property.imageUrls.length === 0) && (
+                  <CarouselItem>
+                    <div className="relative aspect-[16/9] w-full overflow-hidden rounded-lg bg-gray-200 flex items-center justify-center">
+                      <p className="text-gray-500">No images available</p>
+                    </div>
+                  </CarouselItem>
+                )}
               </CarouselContent>
               <div className="absolute inset-0 flex items-center justify-between p-4 pointer-events-none">
                 <CarouselPrevious className="pointer-events-auto" />
@@ -185,17 +195,17 @@ export default function PropertyDetails() {
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
                   <div className="flex flex-col items-center justify-center bg-gray-50 rounded-lg p-4">
                     <Bed className="h-8 w-8 text-primary mb-2" />
-                    <span className="text-2xl font-bold">{property.bedrooms}</span>
+                    <span className="text-2xl font-bold">{property.bedrooms || 'N/A'}</span>
                     <span className="text-gray-600 text-sm">Bedrooms</span>
                   </div>
                   <div className="flex flex-col items-center justify-center bg-gray-50 rounded-lg p-4">
                     <Bath className="h-8 w-8 text-primary mb-2" />
-                    <span className="text-2xl font-bold">{property.bathrooms}</span>
+                    <span className="text-2xl font-bold">{property.bathrooms || 'N/A'}</span>
                     <span className="text-gray-600 text-sm">Bathrooms</span>
                   </div>
                   <div className="flex flex-col items-center justify-center bg-gray-50 rounded-lg p-4">
                     <Ruler className="h-8 w-8 text-primary mb-2" />
-                    <span className="text-2xl font-bold">{property.area.toLocaleString()}</span>
+                    <span className="text-2xl font-bold">{property.area ? property.area.toLocaleString() : 'N/A'}</span>
                     <span className="text-gray-600 text-sm">Square Feet</span>
                   </div>
                   <div className="flex flex-col items-center justify-center bg-gray-50 rounded-lg p-4">
@@ -232,22 +242,22 @@ export default function PropertyDetails() {
                   <TabsContent value="map" className="p-6">
                     <h3 className="text-xl font-bold mb-4">Property Location</h3>
                     <div className="aspect-[16/9] w-full overflow-hidden rounded-lg bg-gray-100">
-                      {showMap ? (
+                      {showMap && property.latitude && property.longitude ? (
                         <GoogleMap
                           mapContainerStyle={{
                             width: '100%',
                             height: '100%',
                           }}
                           center={{
-                            lat: property.latitude,
-                            lng: property.longitude
+                            lat: property.latitude || 0,
+                            lng: property.longitude || 0
                           }}
                           zoom={15}
                         >
                           <Marker
                             position={{
-                              lat: property.latitude,
-                              lng: property.longitude
+                              lat: property.latitude || 0,
+                              lng: property.longitude || 0
                             }}
                           />
                         </GoogleMap>

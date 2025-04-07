@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Menu, X, Home, Building, Newspaper, Lock } from "lucide-react";
+import { COMPANY_INFO } from "@/lib/constants";
 
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -38,7 +39,15 @@ export default function Navbar() {
           {/* Logo */}
           <div className="flex items-center">
             <Link href="/" className="flex items-center">
-              <span className="text-primary text-2xl font-display font-bold">Naina<span className="text-red-600">Land</span></span>
+              <img 
+                src="/attached_assets/WhatsApp_Image_2025-03-28_at_2.02.20_PM-removebg-preview-2.png" 
+                alt={COMPANY_INFO.name} 
+                className="h-12 mr-2" 
+                onError={(e) => {
+                  e.currentTarget.src = "https://via.placeholder.com/48x48?text=NL";
+                }}
+              />
+              <span className="text-primary text-xl font-display font-bold">Naina<span className="text-red-600">Land</span></span>
             </Link>
           </div>
           
