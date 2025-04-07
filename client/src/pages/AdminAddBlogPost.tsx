@@ -41,15 +41,26 @@ export default function AdminAddBlogPost() {
   const createBlogPostMutation = useMutation({
     mutationFn: async (blogData: InsertBlogPost) => {
       console.log("Sending blog data:", JSON.stringify(blogData, null, 2));
-      return apiRequest<{ success: boolean; data: any }>("/api/blog", {
-        method: "POST",
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(blogData),
-      });
+      console.log("Current authentication state:", document.cookie);
+      
+      try {
+        const response = await apiRequest<{ success: boolean; data: any }>("/api/blog", {
+          method: "POST",
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(blogData),
+        });
+        
+        console.log("Blog post creation response:", response);
+        return response;
+      } catch (err) {
+        console.error("Raw error from blog post creation:", err);
+        throw err;
+      }
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
+      console.log("Blog post creation successful:", data);
       toast({
         title: "Blog Post Added",
         description: "The blog post has been published successfully.",
@@ -62,6 +73,12 @@ export default function AdminAddBlogPost() {
       let errorMsg = "Failed to publish blog post. Please try again.";
       if (error?.message) {
         errorMsg = error.message;
+      }
+      
+      if (error?.status === 401) {
+        errorMsg = "You need to log in to publish a blog post.";
+        // Navigate to login page
+        navigate("/admin/login");
       }
       
       toast({

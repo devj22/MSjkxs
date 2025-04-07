@@ -15,11 +15,22 @@ import MemoryStore from "memorystore";
 
 // Create an authenticated middleware to protect admin routes
 const isAuthenticated = (req: Request, res: Response, next: NextFunction) => {
+  // Log authentication status for debugging
+  console.log('Auth check - Session ID:', req.sessionID);
+  console.log('Auth check - Is authenticated:', req.isAuthenticated());
+  if (req.user) {
+    console.log('Auth check - User:', req.user);
+  } else {
+    console.log('Auth check - No user in request');
+  }
+  
   if (req.isAuthenticated()) {
+    console.log('Auth check - Access granted');
     return next();
   }
   
-  res.status(401).json({
+  console.log('Auth check - Access denied');
+  return res.status(401).json({
     success: false,
     message: "Unauthorized access. Please login first."
   });

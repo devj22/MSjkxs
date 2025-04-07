@@ -59,12 +59,27 @@ export default function AdminAddProperty() {
   // Create property mutation
   const createPropertyMutation = useMutation({
     mutationFn: async (propertyData: InsertProperty) => {
-      return apiRequest<{ success: boolean; data: any }>("/api/properties", {
-        method: "POST",
-        body: JSON.stringify(propertyData),
-      });
+      console.log("Sending property data:", JSON.stringify(propertyData, null, 2));
+      console.log("Current authentication state:", document.cookie);
+      
+      try {
+        const response = await apiRequest<{ success: boolean; data: any }>("/api/properties", {
+          method: "POST",
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(propertyData),
+        });
+        
+        console.log("Property creation response:", response);
+        return response;
+      } catch (err) {
+        console.error("Raw error from property creation:", err);
+        throw err;
+      }
     },
     onSuccess: (data) => {
+      console.log("Property creation successful:", data);
       toast({
         title: "Land Property Added",
         description: "The land property has been added successfully.",
@@ -77,6 +92,12 @@ export default function AdminAddProperty() {
       let errorMsg = "Failed to add property. Please try again.";
       if (error?.message) {
         errorMsg = error.message;
+      }
+      
+      if (error?.status === 401) {
+        errorMsg = "You need to log in to add a property.";
+        // Navigate to login page
+        navigate("/admin/login");
       }
       
       toast({
