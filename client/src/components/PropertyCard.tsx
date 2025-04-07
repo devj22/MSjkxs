@@ -10,13 +10,10 @@ interface PropertyCardProps {
 }
 
 export default function PropertyCard({ property }: PropertyCardProps) {
-  const formatPrice = (price?: number) => {
-    if (price === undefined || price === null) {
-      return "Price on request";
-    }
+  const formatPrice = (price: number) => {
     return price.toLocaleString('en-US', {
       style: 'currency',
-      currency: 'INR',
+      currency: 'USD',
       maximumFractionDigits: 0,
     });
   };
@@ -26,9 +23,7 @@ export default function PropertyCard({ property }: PropertyCardProps) {
       <Link href={`/property/${property.id}`}>
         <div className="relative aspect-[4/3] cursor-pointer">
           <img 
-            src={property.imageUrls && property.imageUrls.length > 0 
-              ? property.imageUrls[0] 
-              : 'https://via.placeholder.com/400x300?text=No+Image+Available'} 
+            src={property.imageUrls[0]} 
             alt={property.title}
             className="w-full h-full object-cover"
           />
@@ -77,15 +72,15 @@ export default function PropertyCard({ property }: PropertyCardProps) {
         <div className="grid grid-cols-3 gap-2 mb-4">
           <div className="flex items-center text-gray-700">
             <Bed className="h-4 w-4 mr-1 text-primary" />
-            <span>{property.bedrooms || 'N/A'} Bed</span>
+            <span>{property.bedrooms} Bed</span>
           </div>
           <div className="flex items-center text-gray-700">
             <Bath className="h-4 w-4 mr-1 text-primary" />
-            <span>{property.bathrooms || 'N/A'} Bath</span>
+            <span>{property.bathrooms} Bath</span>
           </div>
           <div className="flex items-center text-gray-700">
             <Ruler className="h-4 w-4 mr-1 text-primary" />
-            <span>{property.area ? property.area.toLocaleString() : 'N/A'} sqft</span>
+            <span>{property.area.toLocaleString()} sqft</span>
           </div>
         </div>
         
