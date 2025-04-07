@@ -139,10 +139,7 @@ export default function AdminAddProperty() {
       return;
     }
     
-    if (!price || price <= 0) {
-      toast({ title: "Error", description: "Price must be greater than 0", variant: "destructive" });
-      return;
-    }
+    
     
     // Filter out empty image URLs
     const filteredImageUrls = imageUrls.filter((url) => url.trim() !== "");
@@ -159,7 +156,6 @@ export default function AdminAddProperty() {
     const propertyData: InsertProperty = {
       title,
       description,
-      price,
       location,
       address,
       bedrooms: 0, // Always 0 for land properties
@@ -232,19 +228,7 @@ export default function AdminAddProperty() {
                       required
                     />
                   </div>
-                  <div>
-                    <Label htmlFor="price" className="mb-2 block">Price*</Label>
-                    <Input
-                      id="price"
-                      type="number"
-                      min="0"
-                      step="1000"
-                      placeholder="e.g., 1000000"
-                      value={price}
-                      onChange={(e) => setPrice(Number(e.target.value))}
-                      required
-                    />
-                  </div>
+                  
                 </div>
                 
                 <div>
